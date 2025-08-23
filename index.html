@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-translate-key="appTitle">Transifex Raporum</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
+</head>
+<body class="dark">
+  <div class="container">
+    <div class="header">
+      <h1 data-translate-key="headerTitle">TRANSIFEX RAPORUM</h1>
+      <div class="actions">
+        <button id="printChartBtn" data-translate-key="printButton">🖨️ Yazdır</button>
+        <button id="openSettings" data-translate-key="settingsButton">⚙️ Ayarlar</button>
+        <button id="openSidebar" data-translate-key="openListButton">📄 Listede aç</button>
+        <button id="resetZoom" data-translate-key="resetZoomButton">🔄 Grafiği sıfırla</button>
+      </div>
+    </div>
+
+    <div class="filter-controls">
+      <strong data-translate-key="filterLabel">Grafik Filtreleme:</strong>
+      
+      <div class="filter-group" id="filter-group-range">
+        <div class="filter-item">
+          <label for="startMonth" data-translate-key="filterStartLabel">Başlangıç:</label>
+          <select id="startMonth"></select>
+          <select id="startYear"></select>
+        </div>
+        <div class="filter-item">
+          <label for="endMonth" data-translate-key="filterEndLabel">Bitiş:</label>
+          <select id="endMonth"></select>
+          <select id="endYear"></select>
+        </div>
+      </div>
+
+      <div class="filter-group" id="filter-group-single" style="display: none;">
+        <div class="filter-item">
+          <label for="singleMonth" data-translate-key="filterDateLabel">Tarih Seç:</label>
+          <select id="singleMonth"></select>
+          <select id="singleYear"></select>
+        </div>
+      </div>
+
+      <div class="filter-group" id="filter-group-aggregated" style="display: none;">
+        <div class="filter-item">
+          <label for="aggregatedReportSelector" data-translate-key="reportLabel">Rapor:</label>
+          <select id="aggregatedReportSelector"></select>
+        </div>
+      </div>
+
+       <div class="filter-item">
+         <label for="viewType" data-translate-key="filterViewLabel">Görünüm:</label>
+         <select id="viewType">
+           <option value="total" data-translate-key="viewTypeTotal">Genel Toplam (Proje Bazlı)</option>
+           <option value="monthly" data-translate-key="viewTypeMonthly">Aylık Toplam</option>
+           <option value="singleMonthProject" data-translate-key="viewTypeSingleMonth">Tek Ay Dökümü (Proje Bazlı)</option>
+           <option value="aggregated" data-translate-key="viewTypeAggregated">Toplu raporlar</option>
+         </select>
+       </div>
+      <button id="clearFilterBtn" data-translate-key="clearFilterButton">Temizle</button>
+      <button id="filterInfoBtn" class="info-btn" aria-label="Filtreleme bilgisi">ℹ️</button>
+    </div>
+
+    <div class="totals">
+      <div class="total-box edit"><span data-translate-key="totalEditsLabel">Toplam düzenleme:</span> <span id="totalEdit"></span></div>
+      <div class="total-box review"><span data-translate-key="totalReviewsLabel">Toplam inceleme:</span> <span id="totalReview"></span></div>
+    </div>
+
+    <div id="mainChartContainer">
+        <canvas id="myChart"></canvas>
+    </div>
+    <div id="pieChartContainer" style="display: none;">
+        <div class="pie-chart-wrapper">
+            <h3 class="chart-title" id="editPieTitle" data-translate-key="editPieChartTitle"></h3>
+            <canvas id="editPieChart"></canvas>
+        </div>
+        <div class="pie-chart-wrapper">
+            <h3 class="chart-title" id="reviewPieTitle" data-translate-key="reviewPieChartTitle"></h3>
+            <canvas id="reviewPieChart"></canvas>
+        </div>
+    </div>
+  </div>
+  
+  <div id="sidebar" class="sidebar custom-scrollbar">
+    <div class="sidebar-header">
+      <h2 data-translate-key="sidebarHeader">Detaylı veriler</h2>
+      <button id="closeSidebar" class="close-btn">X</button>
+    </div>
+    <div class="sidebar-controls">
+      <input type="text" id="searchInput" data-translate-key-placeholder="searchInputPlaceholder">
+      <div class="sort-buttons">
+        <label data-translate-key="sortLabel">Sırala:</label>
+        <button onclick="sortData('Project', this)" data-translate-key="sortByName">Ad <span class="sort-indicator"></span></button>
+        <button onclick="sortData('Edit_total', this)" data-translate-key="sortByEdit">Düzenleme <span class="sort-indicator"></span></button>
+        <button onclick="sortData('Review_total', this)" data-translate-key="sortByReview">İnceleme <span class="sort-indicator"></span></button>
+      </div>
+    </div>
+    <ul id="dataList"></ul>
+  </div>
+
+  <div id="settingsPopup" class="custom-scrollbar">
+    <div class="popup-header">
+      <h2 data-translate-key="settingsHeader">Ayarlar</h2>
+      <button id="closeSettings" class="close-btn">✖</button>
+    </div>
+    <div class="settings-list">
+        <div class="setting-item">
+            <strong data-translate-key="languageLabel">Dil</strong>
+            <select id="languageSelector"></select>
+        </div>
+      <div class="setting-item">
+        <strong data-translate-key="themeLabel">Tema</strong>
+        <button id="toggleTheme" data-translate-key="themeButtonDark">Koyu tema 🌙</button>
+      </div>
+      <div class="setting-item">
+        <strong data-translate-key="chartTypeLabel">Grafik Tipi</strong>
+        <select id="chartTypeSelect">
+          <option value="bar" data-translate-key="chartTypeBar">Çubuk Grafiği</option>
+          <option value="line" data-translate-key="chartTypeLine">Çizgi Grafiği</option>
+          <option value="stacked" data-translate-key="chartTypeStacked">Yığılmış Çubuk Grafiği</option>
+          <option value="pie" data-translate-key="chartTypePie">Pasta Grafiği</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <strong data-translate-key="editDataLabel">Verileri Düzenle</strong>
+        <button id="openEditorFromSettings" data-translate-key="editDataButton">✏️ Düzenleme sayfasına git</button>
+      </div>
+      <div class="color-controls">
+        <strong data-translate-key="colorSettingsLabel">Renk Ayarları</strong>
+        <div class="color-picker-group">
+          <label>
+            <span data-translate-key="editLabel">Düzenleme</span>
+            <input type="color" id="editColor" value="#10b981">
+          </label>
+          <label>
+            <span data-translate-key="reviewLabel">İnceleme</span>
+            <input type="color" id="reviewColor" value="#ea580c">
+          </label>
+          <button id="saveColors" data-translate-key="saveColorsButton">🎨 Kaydet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="editorPopup" class="custom-scrollbar">
+    <div class="popup-header">
+      <h2 data-translate-key="editorHeader">Verileri Düzenle</h2>
+      <button id="closeEditor" class="close-btn">✖</button>
+    </div>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="openEditorTab(event, 'manualEntry')" data-translate-key="editorTabManual">📝 Manuel Veri Girişi</button>
+      <button class="tab-btn" onclick="openEditorTab(event, 'recordManagement')" data-translate-key="editorTabRecords">📂 Kayıt Yönetimi</button>
+      <button class="tab-btn" onclick="openEditorTab(event, 'fileOperations')" data-translate-key="editorTabFiles">↔️ Dosya İşlemleri</button>
+    </div>
+
+    <div id="tab-manualEntry" class="tab-content" style="display: block;">
+      <form id="dataForm">
+        <input type="text" id="projectName" data-translate-key-placeholder="projectNamePlaceholder" required>
+        <input type="number" id="editValue" data-translate-key-placeholder="editValuePlaceholder" required min="0">
+        <input type="number" id="reviewValue" data-translate-key-placeholder="reviewValuePlaceholder" required min="0">
+        <div class="date-select-group">
+          <select id="dataMonth" required></select>
+          <select id="dataYear" required></select>
+        </div>
+        <button type="submit" data-translate-key="addUpdateButton">➕ Ekle/Güncelle</button>
+      </form>
+      
+      <div class="list-controls">
+          <input type="text" id="editorSearchInput" data-translate-key-placeholder="editorSearchPlaceholder" class="editor-search">
+          <div id="editorSortButtons" class="sort-buttons">
+            <label data-translate-key="sortLabel">Sırala:</label>
+            <button onclick="sortData('Project', this)" data-translate-key="sortByName">Ad <span class="sort-indicator"></span></button>
+            <button onclick="sortData('Edit_total', this)" data-translate-key="sortByEdit">Düzenleme <span class="sort-indicator"></span></button>
+            <button onclick="sortData('Review_total', this)" data-translate-key="sortByReview">İnceleme <span class="sort-indicator"></span></button>
+            <button onclick="sortData('dateOrReport', this)" data-translate-key="sortByDateReport">Tarih/Rapor <span class="sort-indicator"></span></button>
+          </div>
+      </div>
+      
+      <div id="batchActionContainer" class="batch-action-container" style="display: none;">
+          <button id="deleteSelectedRowsBtn" class="clear-btn" data-translate-key="batchDeleteButton">Seçilenleri Sil</button>
+      </div>
+
+      <div class="editor-list-header">
+          <input type="checkbox" id="selectAllCheckbox" title="Tümünü Seç">
+          <span data-translate-key="tableHeaderProject">Proje</span>
+          <span data-translate-key="tableHeaderEdit">Düzenleme</span>
+          <span data-translate-key="tableHeaderReview">İnceleme</span>
+          <span data-translate-key="tableHeaderDate">Tarih / Rapor</span>
+          <span data-translate-key="tableHeaderActions">İşlemler</span>
+      </div>
+      <ul id="editorList"></ul>
+
+      <div id="pagination-controls" class="pagination-controls">
+          <button id="prevPageBtn" data-translate-key="paginationPrevious">&laquo; Geri</button>
+          <span id="pageInfo"></span>
+          <button id="nextPageBtn" data-translate-key="paginationNext">İleri &raquo;</button>
+      </div>
+    </div>
+
+    <div id="tab-recordManagement" class="tab-content">
+      <div class="control-panel-section">
+        <h3 data-translate-key="recordManagementHeader">Mevcut Kaydı Yönet</h3>
+        <select id="loadSelect" aria-label="Kayıt seç">
+          <option value="" data-translate-key="selectRecord">📂 Kayıt seç...</option>
+        </select>
+        <div class="button-grid">
+            <button class="save-btn" id="overwriteDataBtn" data-translate-key="overwriteRecordButton">💾 Üstüne kaydet</button>
+            <button class="load-btn" id="renameSelectedBtn" data-translate-key="renameButton">✏️ Yeniden adlandır</button>
+            <button class="clear-btn" id="deleteSelectedBtn" data-translate-key="deleteThisRecordButton">🗑️ Bu kaydı sil</button>
+        </div>
+      </div>
+      <div class="control-panel-section">
+          <h3 data-translate-key="recordManagementGlobalHeader">Genel Kayıt İşlemleri</h3>
+          <div class="button-grid">
+            <button class="save-btn" id="saveDataBtn" data-translate-key="createNewRecordButton">💾 Yeni kayıt oluştur</button>
+            <button class="clear-btn" id="clearDataBtn" data-translate-key="deleteAllRecordsButton">🗑️ Tüm kayıtları sil</button>
+          </div>
+      </div>
+    </div>
+
+    <div id="tab-fileOperations" class="tab-content">
+        <div class="control-panel-section">
+            <h3 data-translate-key="fileSectionCsv">CSV İşlemleri</h3>
+            <p data-translate-key="fileSectionCsvDesc">Verilerinizi proje, düzenleme ve inceleme sayısı olarak içe veya dışa aktarın. Bu format diğer tablo uygulamalarıyla uyumludur.</p>
+            <div class="button-grid">
+                <label class="load-btn import-label">
+                    <span data-translate-key="importCsvButton">⬆️ CSV İçeri Aktar</span>
+                    <input type="file" id="csvFile" accept=".csv" hidden>
+                </label>
+                <button class="load-btn" id="exportCSVBtn" data-translate-key="exportCsvButton">⬇️ CSV Dışa Aktar</button>
+            </div>
+        </div>
+        <div class="control-panel-section">
+            <h3 data-translate-key="fileSectionJson">JSON Yedekleme İşlemleri</h3>
+            <p data-translate-key="fileSectionJsonDesc">Tüm veri yapısını yedeklemek veya başka bir cihaza taşımak için JSON formatını kullanın. Bu işlem mevcut seçili kaydı etkiler.</p>
+            <div class="button-grid">
+                <label class="load-btn import-label">
+                    <span data-translate-key="importButton">⬆️ JSON İçe Aktar</span>
+                    <input type="file" id="importFile" accept=".json" hidden>
+                </label>
+                <button class="load-btn" id="exportSelectedBtn" data-translate-key="exportButton">⬇️ JSON Dışa Aktar</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="confirmLoadModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="popup-header">
+        <h3 data-translate-key="confirmLoadModalTitle"></h3>
+        <button id="closeConfirmLoadModal" class="close-btn">✖</button>
+      </div>
+      <p data-translate-key="confirmLoadModalText"></p>
+      <div class="modal-actions vertical">
+        <button id="exportAndContinueBtn" data-translate-key="confirmLoadModalExport"></button>
+        <button id="confirmLoadBtn" data-translate-key="confirmLoadModalContinue"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="csvImportTypeModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h3 data-translate-key="csvImportTypeModalHeader">CSV İçe Aktarma Türü</h3>
+      <p data-translate-key="csvImportTypeModalText">Bu CSV dosyasındaki verileri nasıl içe aktarmak istersiniz?</p>
+      <div class="modal-actions vertical">
+        <button id="csvImportSingleDateBtn" data-translate-key="csvImportTypeSingleDate">Tek bir tarihe ata</button>
+        <button id="csvImportAggregatedBtn" data-translate-key="csvImportTypeAggregated">Toplu rapor olarak ata (tarihsiz)</button>
+        <button id="csvImportCancelBtn" data-translate-key="cancelButton" class="cancel">İptal</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="csvDateModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h3 data-translate-key="csvModalHeader">CSV Verileri İçin Tarih Seçin</h3>
+      <p data-translate-key="csvModalText">Lütfen dosyadaki tüm verilerin ekleneceği varsayılan bir ay ve yıl seçin.</p>
+      <div class="date-select-group">
+        <select id="csvMonth" required></select>
+        <select id="csvYear" required></select>
+      </div>
+      <div class="modal-actions">
+        <button id="confirmCsvDate" data-translate-key="confirmButton">Onayla</button>
+        <button id="cancelCsvDate" data-translate-key="cancelButton" class="cancel">İptal</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="filterInfoModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="popup-header">
+            <h2 id="filterInfoTitle"></h2>
+            <button id="closeFilterInfo" class="close-btn">✖</button>
+        </div>
+        <div id="filterInfoContent"></div>
+    </div>
+  </div>
+  
+  <div id="printArea" class="print-area">
+    <h2 id="printTitle"></h2>
+    <div id="printCharts"></div>
+    <div id="printTableContainer"></div>
+  </div>
+
+  <div id="overlay" class="overlay"></div>
+  <div id="toast-container" class="toast-container"></div>
+  
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
