@@ -4,6 +4,8 @@ A client-side, zero-dependency web application specifically designed to visualiz
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
+[View demo](https://scravonix.github.io/Transifex-Report-Dashboard/)
+
 This tool empowers translators and reviewers to go beyond the standard Transifex reports. All data is stored securely in your browser's `localStorage`, ensuring complete privacy and control. No servers, no sign-ups, no tracking.
 
 I made this (with help from AI) at first for myself. But then I thought, why not share it with everyone as open source? So I decided to share it.
