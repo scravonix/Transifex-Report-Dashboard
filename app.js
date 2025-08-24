@@ -15,9 +15,9 @@ let mainChart, editPieChart, reviewPieChart;
 function getCurrentLanguage() {
     const savedLang = localStorage.getItem('language');
     if (savedLang && translations[savedLang]) return savedLang;
-    const browserLang = navigator.language.split('-')[0];
-    if (translations[browserLang]) return browserLang;
-    return 'tr';
+    // const browserLang = navigator.language.split('-')[0];
+    // if (translations[browserLang]) return browserLang;
+    return 'en';
 }
 function saveLanguage(lang) {
     localStorage.setItem('language', lang);
@@ -1346,7 +1346,7 @@ document.getElementById('deleteSelectedRowsBtn').onclick = function() {
 
 function initializeApp() {
     const langSelector = document.getElementById('languageSelector');
-    const languageMap = { ar: 'العربية', 'zh-CN': '简体中文', 'zh-TW': '繁體中文', nl: 'Nederlands', en: 'English', fr: 'Français', de: 'Deutsch', id: 'Bahasa Indonesia', it: 'Italiano', ja: '日本語', ko: '한국어', pl: 'Polski', pt: 'Português', ro: 'Română', ru: 'Русский', es: 'Español', th: 'ไทย', tr: 'Türkçe', vi: 'Tiếng Việt' };
+    const languageMap = { ar: 'العربية', 'zh-CN': '简体中文', 'zh-TW': '繁體中文', nl: 'Nederlands', en: 'English', fr: 'Français', de: 'Deutsch', id: 'Bahasa Indonesia', it: 'Italiano', ja: '日本語', ko: '한국어', pl: 'Polski', pt: 'Português', ro: 'Română', ru: 'Русский', es: 'Español', th: 'ไทย', tr: 'Türkçe', vi: 'Tiếng Việt', el: 'Ελληνικά', bg: 'Български', sr: 'Српски', hr: 'Hrvatski', uk: 'Українська', ka: 'ქართული', sl: 'Slovenščina', az: 'Azərbaycan türkcəsi' };
     for (const [code, name] of Object.entries(languageMap)) {
         langSelector.add(new Option(name, code));
     }
