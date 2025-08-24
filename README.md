@@ -40,7 +40,8 @@ You are in full control of your data, from import to backup.
 Tailor the dashboard to fit your workflow and preferences.
 - **Light & Dark Themes:** Choose the theme that’s easiest on your eyes.
 - **Customizable Colors:** Personalize the colors for "Edited" and "Reviewed" word counts to match your style.
-- **Multilingual Interface:** The dashboard UI is available in multiple languages.
+- **Multilingual Interface:** The dashboard UI is available in 28 languages. Supported languages: 
+  🇬🇧 English, 🇹🇷 Türkçe, 🇪🇸 Español, 🇩🇪 Deutsch, 🇫🇷 Français, 🇵🇹 Português, 🇷🇺 Русский, 🇸🇦 العربية, 🇨🇳 简体中文, 🇹🇼 繁體中文, 🇯🇵 日本語, 🇰🇷 한국어, 🇮🇹 Italiano, 🇳🇱 Nederlands, 🇵🇱 Polski, 🇮🇩 Bahasa Indonesia, 🇹🇭 ไทย, 🇻🇳 Tiếng Việt, 🇬🇷 Ελληνικά, 🇧🇬 Български, 🇷🇸 Српски, 🇭🇷 Hrvatski, 🇺🇦 Українська, 🇬🇪 ქართული, 🇸🇮 Slovenščina, 🇦🇿 Azərbaycan türkcəsi, 🇮🇳 हिन्दी, 🇷🇴 Română.
 - **Print-Friendly Reports:** Generate clean, professional, print-optimized reports of your current chart and data table with a single click.
 - **Undo Functionality:** Mistakenly deleted a record or an entry? A 10-second "Undo" toast notification gives you a chance to reverse most destructive actions.
 
