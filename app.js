@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let undoTimer = null;
     let pendingLoadName = null;
+    let tour;
 
     let mainChart, editPieChart, reviewPieChart;
 
@@ -28,36 +29,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     const currentLang = getCurrentLanguage();
 
-    function applyTranslations() {
-        const lang = getCurrentLanguage();
-        const t = translations[lang];
-        document.querySelectorAll('[data-translate-key]').forEach(el => {
-            const key = el.getAttribute('data-translate-key');
-            if (t[key]) {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = t[key];
-                
-                if (el.tagName === 'UL' && tempDiv.querySelector('ul')) {
-                    el.innerHTML = tempDiv.querySelector('ul').innerHTML;
-                } else {
-                    el.innerHTML = tempDiv.innerHTML;
-                }
+    // app.js
+function applyTranslations() {
+    const lang = getCurrentLanguage();
+    const t = translations[lang];
+
+    // YARDIMCI FONKSİYON: Bir metin içindeki %anahtar% formatındaki yer tutucuları çözer.
+    const resolvePlaceholders = (text) => {
+        // Metin yoksa veya string değilse, olduğu gibi geri döndür.
+        if (!text || typeof text !== 'string') return text;
+        
+        // %anahtar% formatındaki tüm eşleşmeleri bul ve değiştir.
+        return text.replace(/%(\w+)%/g, (match, key) => {
+            // Eşleşen anahtar (key) çeviriler (t) içinde varsa, onun değeriyle değiştir.
+            // Yoksa, orijinal metni (%anahtar%) koru ki hata oluşmasın.
+            return t[key] || match;
+        });
+    };
+
+    document.querySelectorAll('[data-translate-key]').forEach(el => {
+        const key = el.getAttribute('data-translate-key');
+        if (t[key]) {
+            // Orijinal çeviri metnini al ve içindeki yer tutucuları çöz.
+            const resolvedText = resolvePlaceholders(t[key]);
+            
+            const tempDiv = document.createElement('div');
+            // Çözülmüş metni HTML'e ata.
+            tempDiv.innerHTML = resolvedText;
+            
+            if (el.tagName === 'UL' && tempDiv.querySelector('ul')) {
+                el.innerHTML = tempDiv.querySelector('ul').innerHTML;
+            } else {
+                el.innerHTML = tempDiv.innerHTML;
             }
-        });
-        document.querySelectorAll('[data-translate-key-placeholder]').forEach(el => {
-            const key = el.getAttribute('data-translate-key-placeholder');
-            if (t[key]) el.placeholder = t[key];
-        });
-        document.title = t.appTitle;
-        const themeButton = document.getElementById('toggleTheme');
-        themeButton.textContent = document.body.classList.contains('dark') ? t.themeButtonLight : t.themeButtonDark;
-        if (mainChart) {
-            mainChart.data.datasets[0].label = t.editLabel;
-            mainChart.data.datasets[1].label = t.reviewLabel;
-            mainChart.update();
         }
-        updateMegaUI();
+    });
+    
+    document.querySelectorAll('[data-translate-key-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-translate-key-placeholder');
+        // placeholder'lar için de aynı mantığı uygulayabiliriz.
+        if (t[key]) el.placeholder = resolvePlaceholders(t[key]);
+    });
+
+    document.title = t.appTitle;
+    const themeButton = document.getElementById('toggleTheme');
+    themeButton.textContent = document.body.classList.contains('dark') ? t.themeButtonLight : t.themeButtonDark;
+    if (mainChart) {
+        mainChart.data.datasets[0].label = t.editLabel;
+        mainChart.data.datasets[1].label = t.reviewLabel;
+        mainChart.update();
     }
+    updateMegaUI();
+}
 
     function saveData() {
       if (megaStorage) {
@@ -550,15 +573,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (hasDateColumns) {
                 processCsvFile({ isMultiMonth: true });
             } else {
-                document.getElementById('csvImportTypeModal').style.display = 'flex';
-                overlay.classList.add("show");
+                openPopup('csvType');
             }
         };
         reader.readAsText(file);
         e.target.value = '';
     };
 
-    function processCsvFile(options = {}) {
+        function processCsvFile(options = {}) {
         if (!pendingCsvFile) return;
         const t = translations[getCurrentLanguage()];
         const reader = new FileReader();
@@ -582,6 +604,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 refreshAll();
+                closeAllPopups();
             } catch (err) {
                 showToast(err.message || t.toastCsvError, "error");
             } finally {
@@ -592,12 +615,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     document.getElementById('csvImportSingleDateBtn').onclick = () => {
-        document.getElementById('csvImportTypeModal').style.display = 'none';
-        document.getElementById('csvDateModal').style.display = 'flex';
+        closePopup('csvType');
+        openPopup('csvDate');
     };
     document.getElementById('csvImportAggregatedBtn').onclick = () => {
-        document.getElementById('csvImportTypeModal').style.display = 'none';
-        overlay.classList.remove("show");
+        closeAllPopups();
         const t = translations[getCurrentLanguage()];
         const reportName = prompt(t.promptReportName);
         if (reportName) {
@@ -605,20 +627,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     document.getElementById('csvImportCancelBtn').onclick = () => {
-        document.getElementById('csvImportTypeModal').style.display = 'none';
-        overlay.classList.remove("show");
+        closeAllPopups();
         pendingCsvFile = null;
     };
     document.getElementById('confirmCsvDate').onclick = () => {
         const year = parseInt(document.getElementById('csvYear').value);
         const month = parseInt(document.getElementById('csvMonth').value);
         processCsvFile({ month, year });
-        document.getElementById('csvDateModal').style.display = 'none';
-        overlay.classList.remove("show");
+        closePopup('csvDate');
     };
     document.getElementById('cancelCsvDate').onclick = () => {
-        document.getElementById('csvDateModal').style.display = 'none';
-        overlay.classList.remove("show");
+        closeAllPopups();
         pendingCsvFile = null;
     };
 
@@ -922,35 +941,57 @@ document.addEventListener('DOMContentLoaded', function() {
         filterInfo: document.getElementById("filterInfoModal"),
         confirmLoad: document.getElementById("confirmLoadModal"),
         megaLogin: document.getElementById("megaLoginModal"),
-        overlay: document.getElementById("overlay")
     };
+    const overlay = document.getElementById("overlay");
+
+    function openPopup(id) {
+        if(tour && tour.isActive()) tour.cancel();
+        closeAllPopups();
+        if (popups[id]) {
+            if (id === 'sidebar') {
+                popups.sidebar.classList.add('open');
+            } else if (id.includes('Modal')) {
+                popups[id].classList.add('show');
+            } else {
+                 popups[id].classList.add('show');
+            }
+            overlay.classList.add('show');
+        }
+    }
+    
+    function closePopup(id) {
+        if (popups[id]) {
+            if (id === 'sidebar') {
+                popups.sidebar.classList.remove('open');
+            } else if (id.includes('Modal')) {
+                 popups[id].classList.remove('show');
+            } else {
+                popups[id].classList.remove('show');
+            }
+        }
+    }
 
     function closeAllPopups() {
         for (const key in popups) {
-            if(key === 'sidebar') popups[key].classList.remove("open");
-            else if (key !== 'overlay') popups[key].style.display = 'none';
+            closePopup(key);
         }
-        popups.overlay.classList.remove("show");
+        overlay.classList.remove('show');
     }
 
-    document.getElementById("openSidebar").onclick = () => { closeAllPopups(); renderSidebar(getFilteredData()); popups.sidebar.classList.add("open"); popups.overlay.classList.add("show"); };
-    document.getElementById("openSettings").onclick = () => { closeAllPopups(); popups.settings.style.display = 'block'; popups.overlay.classList.add("show"); };
+    document.getElementById("openSidebar").onclick = () => { renderSidebar(getFilteredData()); openPopup('sidebar'); };
+    document.getElementById("openSettings").onclick = () => { openPopup('settings'); };
 
     document.getElementById("openEditorFromSettings").onclick = () => { 
-        closeAllPopups(); 
+        closePopup('settings'); 
         currentPage = 1; 
         editorSearchTerm = '';
         document.getElementById('editorSearchInput').value = '';
         renderEditorList(); 
-        
         document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        
         document.getElementById('tab-manualEntry').style.display = 'block';
         document.querySelector('.tab-btn[onclick*="manualEntry"]').classList.add('active');
-        
-        popups.editor.style.display = 'block'; 
-        popups.overlay.classList.add("show"); 
+        openPopup('editor');
     };
 
     document.getElementById('filterInfoBtn').onclick = () => {
@@ -970,9 +1011,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ul.appendChild(li);
         });
         contentDiv.appendChild(ul);
-        closeAllPopups(); 
-        popups.filterInfo.style.display = 'flex'; 
-        popups.overlay.classList.add("show");
+        openPopup('filterInfo');
     };
 
     document.getElementById("closeSidebar").onclick = closeAllPopups;
@@ -981,11 +1020,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("closeFilterInfo").onclick = closeAllPopups;
     document.getElementById("closeMegaLoginModal").onclick = closeAllPopups;
     document.getElementById("closeConfirmLoadModal").onclick = () => {
-        document.getElementById('confirmLoadModal').style.display = 'none';
+        closeAllPopups();
         document.getElementById('loadSelect').value = '';
         pendingLoadName = null;
     };
-    popups.overlay.onclick = closeAllPopups;
+    overlay.onclick = closeAllPopups;
 
     window.openEditorTab = function(event, tabName) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
@@ -1244,8 +1283,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!selectedValue) return;
 
         pendingLoadName = selectedValue;
-        popups.confirmLoad.style.display = 'flex';
-        popups.overlay.classList.add('show');
+        openPopup('confirmLoad');
         applyTranslations();
         
         this.value = '';
@@ -1304,52 +1342,49 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     document.getElementById("exportSelectedBtn").onclick = async () => {
-  const selected = document.getElementById("loadSelect").value;
-  const t = translations[getCurrentLanguage()];
-  if (!selected) {
-    showToast(t.toastRecordSelected, "error");
-    return;
-  }
+      const selected = document.getElementById("loadSelect").value;
+      const t = translations[getCurrentLanguage()];
+      if (!selected) {
+        showToast(t.toastRecordSelected, "error");
+        return;
+      }
 
-  try {
-    let raw;
-    if (megaStorage) {
-        console.log(`MEGA'dan indiriliyor: record_${selected}.json`);
-        const file = megaFolder.children.find(f => f.name === `record_${selected}.json`);
-        if (!file) {
-            showToast(t.toastMegaError.replace('%s', 'File not found'), 'error');
+      try {
+        let raw;
+        if (megaStorage) {
+            const file = megaFolder.children.find(f => f.name === `record_${selected}.json`);
+            if (!file) {
+                showToast(t.toastMegaError.replace('%s', 'File not found'), 'error');
+                return;
+            }
+            const buffer = await file.downloadBuffer();
+            raw = new TextDecoder().decode(buffer);
+        } else {
+            raw = localStorage.getItem("chartData_" + selected);
+        }
+
+        if (!raw) {
+            showToast("Error: Record data is empty.", "error");
             return;
         }
-        const buffer = await file.downloadBuffer();
-        raw = new TextDecoder().decode(buffer);
-    } else {
-        console.log(`localStorage'dan okunuyor: chartData_${selected}`);
-        raw = localStorage.getItem("chartData_" + selected);
-    }
 
-    if (!raw) {
-        showToast("Error: Record data is empty.", "error");
-        return;
-    }
+        const blob = new Blob([raw], { type: "application/json;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = selected + ".json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(t.toastRecordExported.replace('%s', `"${selected}"`), "success");
 
-    const blob = new Blob([raw], { type: "application/json;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = selected + ".json";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast(t.toastRecordExported.replace('%s', `"${selected}"`), "success");
+      } catch (err) {
+          showToast(t.toastMegaError.replace('%s', err.message || 'Unknown export error'), 'error');
+      }
+    };
 
-  } catch (err) {
-      console.error("Dışa aktarma hatası:", err);
-      showToast(t.toastMegaError.replace('%s', err.message || 'Unknown export error'), 'error');
-  }
-};
-
-    document.getElementById("importFile").onchange = async function(e) {
+        document.getElementById("importFile").onchange = async function(e) {
       const file = e.target.files[0];
       const t = translations[getCurrentLanguage()];
       if (!file) return;
@@ -1372,6 +1407,7 @@ document.addEventListener('DOMContentLoaded', function() {
           currentPage = 1;
           refreshAll();
           showToast(t.toastFileImported.replace('%s', `"${name}"`), "success");
+          closeAllPopups();
         } catch (err) {
           showToast(t.toastInvalidFile, "error");
         }
@@ -1518,13 +1554,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    async function handleMegaLogin(e) {
+        async function handleMegaLogin(e) {
         if(e) e.preventDefault();
         const t = translations[getCurrentLanguage()];
         const email = document.getElementById('megaEmail').value;
         const password = document.getElementById('megaPassword').value;
-        const statusEl = document.getElementById('megaLoginStatus');
-        statusEl.textContent = t.megaStatusLoggingIn;
+        
+        showToast(t.megaStatusLoggingIn, 'info');
 
         try {
             const storage = new mega.Storage({ email, password });
@@ -1542,14 +1578,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             closeAllPopups();
             updateMegaUI();
-            await renderSavedOptions(); 
+            await renderSavedOptions();
             showToast(t.toastMegaSyncSuccess, 'success');
             
         } catch (err) {
-            statusEl.textContent = t.megaStatusError.replace('%s', err.message);
+            showToast(t.toastMegaError.replace('%s', err.message), 'error');
             megaStorage = null;
             megaFolder = null;
-            updateMegaUI(); 
+            updateMegaUI();
         }
     }
 
@@ -1560,19 +1596,120 @@ document.addEventListener('DOMContentLoaded', function() {
         renderSavedOptions(); 
     }
 
-    function onMegaButtonClick() {
+        function onMegaButtonClick() {
         if (megaStorage) {
             handleMegaLogout();
         } else {
-            closeAllPopups();
-            const statusEl = document.getElementById('megaLoginStatus');
-            statusEl.textContent = '';
             document.getElementById('megaLoginForm').reset();
-            popups.megaLogin.style.display = 'flex';
-            popups.overlay.classList.add('show');
+            openPopup('megaLogin');
             applyTranslations(); 
         }
     }
+
+    function setupTour() {
+        const t = translations[getCurrentLanguage()];
+        
+        const tourCleanup = () => {
+            localStorage.setItem('tourCompleted', 'true');
+            closeAllPopups();
+        };
+
+        tour = new Shepherd.Tour({
+            useModalOverlay: true,
+            defaultStepOptions: {
+              cancelIcon: { enabled: true },
+              classes: 'shepherd-custom',
+              scrollTo: { behavior: 'smooth', block: 'center' }
+            }
+        });
+
+        tour.on('complete', tourCleanup);
+        tour.on('cancel', tourCleanup);
+
+        tour.addStep({
+            title: t.tourHeader,
+            text: t.tourStep1,
+            buttons: [{ action: tour.next, text: t.tourNext }]
+        });
+        tour.addStep({
+            title: t.tourStep2Title,
+            text: t.tourStep2,
+            attachTo: { element: '#viewType', on: 'bottom' },
+            buttons: [{ action: tour.back, text: t.tourBack, secondary: true }, { action: tour.next, text: t.tourNext }]
+        });
+        tour.addStep({
+            title: t.tourStep3Title,
+            text: t.tourStep3,
+            attachTo: { element: '#filter-group-range', on: 'bottom' },
+            buttons: [{ action: tour.back, text: t.tourBack, secondary: true }, { action: tour.next, text: t.tourNext }]
+        });
+        tour.addStep({
+            title: t.tourStep4Title,
+            text: t.tourStep4.replace('%resetButton%', `<strong>"${t.resetZoomButton}"</strong>`),
+            attachTo: { element: '#mainChartContainer', on: 'top' },
+            buttons: [{ action: tour.back, text: t.tourBack, secondary: true }, { action: tour.next, text: t.tourNext }]
+        });
+        tour.addStep({
+            title: t.tourStep5Title,
+            text: t.tourStep5,
+            attachTo: { element: '.actions', on: 'bottom' },
+            buttons: [{ action: tour.back, text: t.tourBack, secondary: true }, { action: tour.next, text: t.tourNext }],
+            when: {
+                show() {
+                    if (popups.settings.classList.contains('show')) {
+                        closePopup('settings');
+                    }
+                }
+            }
+        });
+        tour.addStep({
+            title: t.tourStep6Title,
+            text: t.tourStep6.replace('%button%', `<strong>"${t.editDataButton}"</strong>`),
+            attachTo: { element: '#openEditorFromSettings', on: 'left' },
+            buttons: [{ action: tour.back, text: t.tourBack, secondary: true }, { action: tour.next, text: t.tourNext }],
+            when: {
+                show: () => {
+                    if (!popups.settings.classList.contains('show')) {
+                        popups.settings.classList.add('show');
+                    }
+                },
+                'before-hide': () => {
+                    closePopup('settings');
+                }
+            }
+        });
+        tour.addStep({
+            title: t.tourStepMegaTitle,
+            text: t.tourStepMega.replace('%button%', `<strong>"${t.megaSaveButton}"</strong>`),
+            attachTo: { element: '#megaLoginBtn', on: 'left' },
+            buttons: [{ action: tour.back, text: t.tourBack, secondary: true }, { action: tour.next, text: t.tourNext }],
+            when: {
+                show: () => {
+                    if (!popups.settings.classList.contains('show')) {
+                        popups.settings.classList.add('show');
+                    }
+                },
+                'before-hide': () => {
+                    closePopup('settings');
+                }
+            }
+        });
+        tour.addStep({
+            title: t.tourStep7Title,
+            text: t.tourStep7,
+            buttons: [{ action: tour.back, text: t.tourBack, secondary: true }, { action: tour.complete, text: t.tourDone }],
+            when: {
+                show: () => {
+                    if (popups.settings.classList.contains('show')) {
+                        closePopup('settings');
+                    }
+                }
+            }
+        });
+
+        return tour;
+    }
+
 
     function initializeApp() {
         const langSelector = document.getElementById('languageSelector');
@@ -1589,19 +1726,39 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('printChartBtn').addEventListener('click', prepareAndPrintChart);
         
         document.getElementById('confirmLoadBtn').onclick = () => {
-        if (pendingLoadName) {
-            loadDataByName(pendingLoadName);
-            document.getElementById('loadSelect').value = pendingLoadName;
-        }
-        document.getElementById('confirmLoadModal').style.display = 'none';
-        pendingLoadName = null;
-    };
+            if (pendingLoadName) {
+                loadDataByName(pendingLoadName);
+                document.getElementById('loadSelect').value = pendingLoadName;
+            }
+            closeAllPopups();
+            pendingLoadName = null;
+        };
+
+        document.getElementById('exportAndContinueBtn').onclick = () => {
+            document.getElementById("exportCSVBtn").click();
+            document.getElementById('confirmLoadBtn').click();
+        };
 
         document.getElementById('megaLoginBtn').onclick = onMegaButtonClick;
         document.getElementById('megaLoginBtnTab').onclick = onMegaButtonClick;
         document.getElementById('megaLoginBtnTabFiles').onclick = onMegaButtonClick;
         document.getElementById('megaLoginForm').onsubmit = handleMegaLogin;
 
+        document.getElementById('startTourBtn').addEventListener('click', () => {
+        closeAllPopups(); 
+
+        setTimeout(() => {
+            setupTour().start();
+        }, 150); 
+    });
+
+        document.querySelectorAll('.popup-container, .modal-overlay').forEach(popup => {
+            popup.addEventListener('click', (event) => {
+                if (event.target === popup) {
+                    closeAllPopups();
+                }
+            });
+        });
 
         populateDateSelectors('dataYear', 'dataMonth');
         populateDateSelectors('csvYear', 'csvMonth');
@@ -1611,6 +1768,13 @@ document.addEventListener('DOMContentLoaded', function() {
         renderSavedOptions();
         toggleFilterVisibility();
         applyTranslations();
+        
+        if (!localStorage.getItem('tourCompleted')) {
+            setTimeout(() => {
+                setupTour().start();
+            }, 1000);
+        }
+	  document.getElementById('toggleTheme').disabled = true;
     }
 
     initializeApp();
