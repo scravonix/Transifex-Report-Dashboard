@@ -45,6 +45,7 @@ Tailor the dashboard to fit your workflow and preferences.
   🇬🇧 English, 🇹🇷 Türkçe, 🇪🇸 Español, 🇩🇪 Deutsch, 🇫🇷 Français, 🇵🇹 Português, 🇷🇺 Русский, 🇸🇦 العربية, 🇨🇳 简体中文, 🇹🇼 繁體中文, 🇯🇵 日本語, 🇰🇷 한국어, 🇮🇹 Italiano, 🇳🇱 Nederlands, 🇵🇱 Polski, 🇮🇩 Bahasa Indonesia, 🇹🇭 ไทย, 🇻🇳 Tiếng Việt, 🇬🇷 Ελληνικά, 🇧🇬 Български, 🇷🇸 Српски, 🇭🇷 Hrvatski, 🇺🇦 Українська, 🇬🇪 ქართული, 🇸🇮 Slovenščina, 🇦🇿 Azərbaycan türkcəsi, 🇮🇳 हिन्दी, 🇷🇴 Română.
 - **Print-Friendly Reports:** Generate clean, professional, print-optimized reports of your current chart and data table with a single click.
 - **Undo Functionality:** Mistakenly deleted a record or an entry? A 10-second "Undo" toast notification gives you a chance to reverse most destructive actions.
+- **First-Time User Tour:** When a user opens the web app for the first time, a small interactive guide will walk them through the main features.
 
 ## 🛠️ Tech Stack
 
