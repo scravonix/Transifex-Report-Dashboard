@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let data = [];
     let lastSortField = '';
     let sortDirection = 1;
-    let pendingCsvFile = null;
+    let pendingFileImport = null;
     let currentPage = 1;
     const itemsPerPage = 8;
     let editorSearchTerm = '';
@@ -561,84 +561,125 @@ function applyTranslations() {
       }
     };
 
+    function processImportedData(importedData, options = {}) {
+        const t = translations[getCurrentLanguage()];
+        const { reportName, month, year } = options;
 
-    document.getElementById("csvFile").onchange = function(e) {
-        const file = e.target.files[0];
+        if (reportName) {
+            importedData.forEach(row => {
+                const newRow = { 
+                    Project: row.Project, 
+                    Edit_total: row.Edit_total || 0, 
+                    Review_total: row.Review_total || 0, 
+                    reportName: reportName 
+                };
+                data.push(newRow);
+            });
+            showToast(t.toastAggregatedReportImported.replace('%s', reportName).replace('%d', importedData.length), "success");
+        } else {
+            importedData.forEach(row => {
+                const newRow = { 
+                    Project: row.Project, 
+                    Edit_total: row.Edit_total || 0, 
+                    Review_total: row.Review_total || 0, 
+                    month: month, 
+                    year: year 
+                };
+                addOrUpdateData(newRow);
+            });
+            const monthName = t.months[month];
+            const dateStr = `${monthName} ${year}`;
+            showToast(t.toastDataMerged.replace('%d', importedData.length).replace('%s', dateStr), "success");
+        }
+    }
+
+    function handleFileImport(file) {
         if (!file) return;
-        pendingCsvFile = file;
+        const t = translations[getCurrentLanguage()];
         const reader = new FileReader();
+
         reader.onload = function(ev) {
-            const headerLine = (ev.target.result.split("\n")[0] || "").toLowerCase().trim();
-            const hasDateColumns = headerLine.includes("month") && headerLine.includes("year");
-            if (hasDateColumns) {
-                processCsvFile({ isMultiMonth: true });
-            } else {
-                openPopup('csvType');
+            try {
+                const content = ev.target.result;
+                let parsedData;
+                let fileType = file.name.toLowerCase().endsWith('.csv') ? 'csv' : 'json';
+
+                if (fileType === 'csv') {
+                    const headerLine = (content.split("\n")[0] || "").toLowerCase().trim();
+                    if (headerLine.includes("month") && headerLine.includes("year")) {
+                        parsedData = parseMultiMonthCSV(content);
+                        parsedData.forEach(row => addOrUpdateData(row));
+                        showToast(t.toastCsvMultiMonthImported.replace('%d', parsedData.length).replace('%s', file.name), "success");
+                        refreshAll();
+                        return;
+                    } else {
+                        parsedData = parseSummaryCSV(content);
+                    }
+                } else { // json
+                    parsedData = JSON.parse(content);
+                    if (!Array.isArray(parsedData)) {
+                         throw new Error(t.toastInvalidFile);
+                    }
+                }
+                
+                if (!parsedData || parsedData.length === 0) {
+                    throw new Error(t.toastInvalidFile);
+                }
+
+                pendingFileImport = { data: parsedData, name: file.name };
+                
+                const modalTextEl = document.getElementById('csvImportTypeModalText');
+                modalTextEl.innerHTML = t.importTypeModalText.replace('%s', `<strong>${file.name}</strong>`);
+                
+                openPopup('csvImportTypeModal');
+
+            } catch (err) {
+                showToast(err.message || t.toastInvalidFile, "error");
             }
         };
         reader.readAsText(file);
+    }
+
+    document.getElementById("csvFile").onchange = function(e) {
+        handleFileImport(e.target.files[0]);
         e.target.value = '';
     };
 
-        function processCsvFile(options = {}) {
-        if (!pendingCsvFile) return;
-        const t = translations[getCurrentLanguage()];
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-            try {
-                const csvData = ev.target.result;
-                if (options.isMultiMonth) {
-                    const parsedData = parseMultiMonthCSV(csvData);
-                    if (parsedData.length === 0) { showToast(t.toastCsvError, "error"); return; }
-                    parsedData.forEach(row => addOrUpdateData(row));
-                    showToast(t.toastCsvMultiMonthImported.replace('%d', parsedData.length).replace('%s', pendingCsvFile.name), "success");
-                } else {
-                    const parsedData = parseSummaryCSV(csvData);
-                    if (parsedData.length === 0) { showToast(t.toastCsvError, "error"); return; }
-                    if (options.reportName) {
-                        parsedData.forEach(row => data.push({ ...row, reportName: options.reportName }));
-                        showToast(t.toastAggregatedReportImported.replace('%s', options.reportName).replace('%d', parsedData.length), "success");
-                    } else { 
-                        parsedData.forEach(row => addOrUpdateData({ ...row, month: options.month, year: options.year }));
-                        showToast(t.toastCsvImported.replace('%s', `"${pendingCsvFile.name}"`), "success");
-                    }
-                }
-                refreshAll();
-                closeAllPopups();
-            } catch (err) {
-                showToast(err.message || t.toastCsvError, "error");
-            } finally {
-                pendingCsvFile = null;
-            }
-        };
-        reader.readAsText(pendingCsvFile);
-    }
-
     document.getElementById('csvImportSingleDateBtn').onclick = () => {
-        closePopup('csvType');
+        closePopup('csvImportTypeModal');
         openPopup('csvDate');
     };
+    
     document.getElementById('csvImportAggregatedBtn').onclick = () => {
         closeAllPopups();
+        if (!pendingFileImport) return;
         const t = translations[getCurrentLanguage()];
-        const reportName = prompt(t.promptReportName);
+        const reportName = prompt(t.promptReportName, `Report from ${pendingFileImport.name}`);
         if (reportName) {
-            processCsvFile({ reportName: reportName });
+            processImportedData(pendingFileImport.data, { reportName });
+            refreshAll();
         }
+        pendingFileImport = null;
     };
+
     document.getElementById('csvImportCancelBtn').onclick = () => {
         closeAllPopups();
-        pendingCsvFile = null;
+        pendingFileImport = null;
     };
+
     document.getElementById('confirmCsvDate').onclick = () => {
+        if (!pendingFileImport) return;
         const year = parseInt(document.getElementById('csvYear').value);
         const month = parseInt(document.getElementById('csvMonth').value);
-        processCsvFile({ month, year });
-        closePopup('csvDate');
+        processImportedData(pendingFileImport.data, { month, year });
+        refreshAll();
+        closeAllPopups();
+        pendingFileImport = null;
     };
+
     document.getElementById('cancelCsvDate').onclick = () => {
         closeAllPopups();
-        pendingCsvFile = null;
+        pendingFileImport = null;
     };
 
     function addOrUpdateData(item, options = {}) {
@@ -936,7 +977,7 @@ function applyTranslations() {
         sidebar: document.getElementById("sidebar"),
         editor: document.getElementById("editorPopup"),
         settings: document.getElementById("settingsPopup"),
-        csvType: document.getElementById("csvImportTypeModal"),
+        csvImportTypeModal: document.getElementById("csvImportTypeModal"),
         csvDate: document.getElementById("csvDateModal"),
         filterInfo: document.getElementById("filterInfoModal"),
         confirmLoad: document.getElementById("confirmLoadModal"),
@@ -1384,35 +1425,9 @@ function applyTranslations() {
       }
     };
 
-        document.getElementById("importFile").onchange = async function(e) {
-      const file = e.target.files[0];
-      const t = translations[getCurrentLanguage()];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = async function(ev) {
-        try {
-          const importedData = JSON.parse(ev.target.result);
-          const name = prompt(t.promptSaveName, file.name.replace(".json", ""));
-          if (!name) return;
-
-          if (megaStorage) {
-              await megaFolder.upload(`record_${name}.json`, Buffer.from(JSON.stringify(importedData))).complete;
-          } else {
-              localStorage.setItem("chartData_" + name, JSON.stringify(importedData));
-          }
-
-          await renderSavedOptions();
-          document.getElementById("loadSelect").value = name;
-          data = importedData;
-          currentPage = 1;
-          refreshAll();
-          showToast(t.toastFileImported.replace('%s', `"${name}"`), "success");
-          closeAllPopups();
-        } catch (err) {
-          showToast(t.toastInvalidFile, "error");
-        }
-      };
-      reader.readAsText(file);
+    document.getElementById("importFile").onchange = function(e) {
+        handleFileImport(e.target.files[0]);
+        e.target.value = '';
     };
 
     document.getElementById("deleteSelectedBtn").onclick = async () => {

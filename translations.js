@@ -194,7 +194,9 @@ const translations = {
         "tourStep7": "أنت الآن تعرف أساسيات التطبيق. لا تتردد في الاستكشاف! يمكنك إعادة بدء هذه الجولة في أي وقت من قائمة الإعدادات.",
         "tourDone": "تم",
         "tourNext": "التالي",
-        "tourBack": "السابق"
+        "tourBack": "السابق",
+		"importTypeModalText": "كيف تريد استيراد البيانات من ملف '%s'؟",
+		"toastDataMerged": "تم دمج %d سجلات بنجاح في فترة %s.",
     },
     "zh-CN": {
         "appTitle": "我的 Transifex 报告",
@@ -391,7 +393,9 @@ const translations = {
         "tourStep7": "您现在已经了解了应用程序的基本知识。请随意探索！您可以随时从“设置”菜单重新开始此导覽。",
         "tourDone": "完成",
         "tourNext": "下一步",
-        "tourBack": "上一步"
+        "tourBack": "上一步",
+		"importTypeModalText": "您希望如何从此 '%s' 文件中导入数据？",
+		"toastDataMerged": "已成功将 %d 条记录合并到 %s 期间。"
     },
     "zh-TW": {
         "appTitle": "我的 Transifex 報告",
@@ -588,7 +592,9 @@ const translations = {
         "tourStep7": "您現在已經了解了應用程式的基本知識。請隨意探索！您可以隨時從「設定」選單重新開始此導覽。",
         "tourDone": "完成",
         "tourNext": "下一步",
-        "tourBack": "上一步"
+        "tourBack": "上一步",
+		"importTypeModalText": "您希望如何從此 '%s' 檔案中匯入資料？",
+		"toastDataMerged": "已成功將 %d 筆記錄合併到 %s 期間。"
     },
     "nl": {
         "appTitle": "Mijn Transifex rapport",
@@ -785,7 +791,9 @@ const translations = {
         "tourStep7": "U kent nu de basisprincipes van de applicatie. Voel u vrij om te verkennen! U kunt deze tour op elk gewenst moment opnieuw starten vanuit het menu Instellingen.",
         "tourDone": "Klaar",
         "tourNext": "Volgende",
-        "tourBack": "Terug"
+        "tourBack": "Terug",
+		"importTypeModalText": "Hoe wilt u de gegevens uit het bestand '%s' importeren?",
+		"toastDataMerged": "%d records succesvol samengevoegd in de periode %s."
     },
     "en": {
         "appTitle": "My Transifex report",
@@ -982,7 +990,9 @@ const translations = {
         "tourStep7": "You now know the basics of the application. Feel free to explore! You can restart this tour anytime from the Settings menu.",
         "tourDone": "Done",
         "tourNext": "Next",
-        "tourBack": "Back"
+        "tourBack": "Back",
+		"toastDataMerged": "Successfully merged %d records into the %s period.",
+		"importTypeModalText": "How would you like to import the data from the '%s' file?"
     },
     "fr": {
         "appTitle": "Mon rapport Transifex",
@@ -1179,7 +1189,9 @@ const translations = {
         "tourStep7": "Vous connaissez maintenant les bases de l'application. N'hésitez pas à explorer ! Vous pouvez redémarrer cette visite à tout moment depuis le menu Paramètres.",
         "tourDone": "Terminé",
         "tourNext": "Suivant",
-        "tourBack": "Retour"
+        "tourBack": "Retour",
+		"importTypeModalText": "Comment souhaitez-vous importer les données du fichier '%s' ?",
+		"toastDataMerged": "%d enregistrements fusionnés avec succès dans la période %s."
     },
     "de": {
         "appTitle": "Mein Transifex-Bericht",
@@ -1376,7 +1388,9 @@ const translations = {
         "tourStep7": "Sie kennen jetzt die Grundlagen der Anwendung. Fühlen Sie sich frei, zu erkunden! Sie können diese Tour jederzeit über das Einstellungsmenü neu starten.",
         "tourDone": "Fertig",
         "tourNext": "Weiter",
-        "tourBack": "Zurück"
+        "tourBack": "Zurück",
+		"importTypeModalText": "Wie möchten Sie die Daten aus der Datei '%s' importieren?",
+		"toastDataMerged": "%d Datensätze erfolgreich in den Zeitraum %s zusammengeführt."
     },
     "id": {
         "appTitle": "Laporan Transifex saya",
@@ -1573,7 +1587,9 @@ const translations = {
         "tourStep7": "Anda sekarang mengetahui dasar-dasar aplikasi. Jangan ragu untuk menjelajah! Anda dapat memulai kembali tur ini kapan saja dari menu Pengaturan.",
         "tourDone": "Selesai",
         "tourNext": "Berikutnya",
-        "tourBack": "Kembali"
+        "tourBack": "Kembali",
+		"importTypeModalText": "Bagaimana Anda ingin mengimpor data dari file '%s'?",
+		"toastDataMerged": "Berhasil menggabungkan %d catatan ke dalam periode %s."
     },
     "it": {
         "appTitle": "Il mio rapporto Transifex",
@@ -1770,7 +1786,9 @@ const translations = {
         "tourStep7": "Ora conosci le basi dell'applicazione. Sentiti libero di esplorare! Puoi riavviare questo tour in qualsiasi momento dal menu Impostazioni.",
         "tourDone": "Fatto",
         "tourNext": "Avanti",
-        "tourBack": "Indietro"
+        "tourBack": "Indietro",
+		"importTypeModalText": "Come desideri importare i dati dal file '%s'?",
+		"toastDataMerged": "%d record uniti con successo nel periodo %s."
     },
     "ja": {
         "appTitle": "私のTransifexレポート",
@@ -1967,7 +1985,9 @@ const translations = {
         "tourStep7": "これでアプリケーションの基本を理解しました。自由に探索してください！このツアーはいつでも設定メニューから再開できます。",
         "tourDone": "完了",
         "tourNext": "次へ",
-        "tourBack": "戻る"
+        "tourBack": "戻る",
+		"importTypeModalText": "「%s」ファイルからデータをどのようにインポートしますか？",
+		"toastDataMerged": "%d件のレコードを%s期間に正常にマージしました。"
     },
     "ko": {
         "appTitle": "내 Transifex 보고서",
@@ -2164,7 +2184,9 @@ const translations = {
         "tourStep7": "이제 애플리케이션의 기본 사항을 알게 되었습니다. 자유롭게 탐색하세요! 언제든지 설정 메뉴에서 이 둘러보기를 다시 시작할 수 있습니다.",
         "tourDone": "완료",
         "tourNext": "다음",
-        "tourBack": "뒤로"
+        "tourBack": "뒤로",
+		"importTypeModalText": "'%s' 파일에서 데이터를 어떻게 가져오시겠습니까?",
+		"toastDataMerged": "%d개의 레코드를 %s 기간으로 성공적으로 병합했습니다."
     },
     "pt": {
         "appTitle": "Meu relatório Transifex",
@@ -2361,7 +2383,10 @@ const translations = {
         "tourStep7": "Agora já conhece o básico da aplicação. Sinta-se à vontade para explorar! Pode reiniciar este tour a qualquer momento a partir do menu de Configurações.",
         "tourDone": "Concluído",
         "tourNext": "Próximo",
-        "tourBack": "Anterior"
+        "tourBack": "Anterior",
+		"importTypeModalText": "Como você deseja importar os dados do arquivo '%s'?",
+        "toastDataMerged": "%d registros foram mesclados com sucesso no período %s."
+
     },
     "tr": {
         "appTitle": "Transifex raporum",
@@ -2558,7 +2583,9 @@ const translations = {
         "tourStep7": "Artık uygulamanın temellerini biliyorsunuz. Keşfetmekten çekinmeyin! Bu turu istediğiniz zaman Ayarlar menüsünden yeniden başlatabilirsiniz.",
         "tourDone": "Bitti",
         "tourNext": "İleri",
-        "tourBack": "Geri"
+        "tourBack": "Geri",
+		"importTypeModalText": "'%s' dosyasındaki verileri nasıl içe aktarmak istersiniz?",
+		"toastDataMerged": "%d kayıt, %s dönemine başarıyla birleştirildi."
     },
     "vi": {
         "appTitle": "Báo cáo Transifex của tôi",
@@ -2755,7 +2782,9 @@ const translations = {
         "tourStep7": "Bây giờ bạn đã biết những điều cơ bản về ứng dụng. Hãy thoải mái khám phá! Bạn có thể bắt đầu lại tour này bất cứ lúc nào từ menu Cài đặt.",
         "tourDone": "Xong",
         "tourNext": "Tiếp theo",
-        "tourBack": "Quay lại"
+        "tourBack": "Quay lại",
+		"importTypeModalText": "Bạn muốn nhập dữ liệu từ tệp '%s' như thế nào?",
+		"toastDataMerged": "Đã hợp nhất thành công %d bản ghi vào giai đoạn %s."
     },
     "pl": {
         "appTitle": "Mój raport Transifex",
@@ -2952,7 +2981,9 @@ const translations = {
         "tourStep7": "Znasz już podstawy aplikacji. Zachęcamy do eksploracji! Możesz ponownie uruchomić tę wycieczkę w dowolnym momencie z menu Ustawienia.",
         "tourDone": "Gotowe",
         "tourNext": "Dalej",
-        "tourBack": "Wstecz"
+        "tourBack": "Wstecz",
+		"importTypeModalText": "Jak chcesz zaimportować dane z pliku '%s'?",
+		"toastDataMerged": "Pomyślnie scalono %d rekordów w okresie %s."
     },
     "ro": {
         "appTitle": "Raportul meu Transifex",
@@ -3149,7 +3180,9 @@ const translations = {
         "tourStep7": "Acum cunoașteți elementele de bază ale aplicației. Simțiți-vă liber să explorați! Puteți reporni acest tur oricând din meniul Setări.",
         "tourDone": "Gata",
         "tourNext": "Următorul",
-        "tourBack": "Înapoi"
+        "tourBack": "Înapoi",
+		"importTypeModalText": "Cum doriți să importați datele din fișierul '%s'?",
+		"toastDataMerged": "%d înregistrări fuzionate cu succes în perioada %s."
     },
     "ru": {
         "appTitle": "Мой отчет Transifex",
@@ -3346,7 +3379,9 @@ const translations = {
         "tourStep7": "Теперь вы знаете основы приложения. Не стесняйтесь исследовать! Вы можете перезапустить этот тур в любое время из меню настроек.",
         "tourDone": "Готово",
         "tourNext": "Далее",
-        "tourBack": "Назад"
+        "tourBack": "Назад",
+		"importTypeModalText": "Как вы хотите импортировать данные из файла '%s'?",
+		"toastDataMerged": "Успешно объединено %d записей в период %s."
     },
     "es": {
         "appTitle": "Mi informe de Transifex",
@@ -3543,7 +3578,9 @@ const translations = {
         "tourStep7": "Ahora conoce los conceptos básicos de la aplicación. ¡Siéntase libre de explorar! Puede reiniciar este recorrido en cualquier momento desde el menú de Configuración.",
         "tourDone": "Hecho",
         "tourNext": "Siguiente",
-        "tourBack": "Atrás"
+        "tourBack": "Atrás",
+		"importTypeModalText": "¿Cómo le gustaría importar los datos del archivo '%s'?",
+		"toastDataMerged": "Se han fusionado %d registros correctamente en el período %s."
     },
     "th": {
         "appTitle": "รายงาน Transifex ของฉัน",
@@ -3740,7 +3777,9 @@ const translations = {
         "tourStep7": "ตอนนี้คุณทราบพื้นฐานของแอปพลิเคชันแล้ว เชิญสำรวจได้ตามสบาย! คุณสามารถเริ่มทัวร์นี้ใหม่ได้ตลอดเวลาจากเมนูการตั้งค่า",
         "tourDone": "เสร็จสิ้น",
         "tourNext": "ถัดไป",
-        "tourBack": "กลับ"
+        "tourBack": "กลับ",
+		"importTypeModalText": "คุณต้องการนำเข้าข้อมูลจากไฟล์ '%s' อย่างไร?",
+		"toastDataMerged": "รวม %d รายการเข้ากับช่วงเวลา %s เรียบร้อยแล้ว"
     },
     "el": {
         "appTitle": "Η αναφορά μου στο Transifex",
@@ -3937,7 +3976,9 @@ const translations = {
         "tourStep7": "Τώρα γνωρίζετε τα βασικά της εφαρμογής. Μη διστάσετε να εξερευνήσετε! Μπορείτε να επανεκκινήσετε αυτήν την περιήγηση ανά πάσα στιγμή από το μενού Ρυθμίσεις.",
         "tourDone": "Τέλος",
         "tourNext": "Επόμενο",
-        "tourBack": "Πίσω"
+        "tourBack": "Πίσω",
+		"importTypeModalText": "Πώς θα θέλατε να εισαγάγετε τα δεδομένα από το αρχείο '%s';",
+		"toastDataMerged": "Επιτυχής συγχώνευση %d εγγραφών στην περίοδο %s."
     },
     "bg": {
         "appTitle": "Моят Transifex отчет",
@@ -4134,7 +4175,9 @@ const translations = {
         "tourStep7": "Вече познавате основите на приложението. Чувствайте се свободни да изследвате! Можете да рестартирате тази обиколка по всяко време от менюто Настройки.",
         "tourDone": "Готово",
         "tourNext": "Напред",
-        "tourBack": "Назад"
+        "tourBack": "Назад",
+		"importTypeModalText": "Как искате да импортирате данните от файла '%s'?",
+		"toastDataMerged": "Успешно обединени %d записа в периода %s."
     },
     "sr": {
         "appTitle": "Moj Transifex izveštaj",
@@ -4331,7 +4374,9 @@ const translations = {
         "tourStep7": "Sada znate osnove aplikacije. Slobodno istražujte! Ovu turu možete ponovo pokrenuti u bilo kom trenutku iz menija Podešavanja.",
         "tourDone": "Gotovo",
         "tourNext": "Dalje",
-        "tourBack": "Nazad"
+        "tourBack": "Nazad",
+		"importTypeModalText": "Како желите да увезете податке из датотеке '%s'?",
+		"toastDataMerged": "Успешно спојено %d записа у период %s."
     },
     "hr": {
         "appTitle": "Moje Transifex izvješće",
@@ -4528,7 +4573,9 @@ const translations = {
         "tourStep7": "Sada znate osnove aplikacije. Slobodno istražujte! Ovu turu možete ponovno pokrenuti u bilo kojem trenutku iz izbornika Postavke.",
         "tourDone": "Gotovo",
         "tourNext": "Dalje",
-        "tourBack": "Natrag"
+        "tourBack": "Natrag",
+		"importTypeModalText": "Kako želite uvesti podatke iz datoteke '%s'?",
+		"toastDataMerged": "Uspješno spojeno %d zapisa u razdoblje %s."
     },
     "uk": {
         "appTitle": "Мій звіт Transifex",
@@ -4725,7 +4772,9 @@ const translations = {
         "tourStep7": "Тепер ви знаєте основи додатка. Не соромтеся досліджувати! Ви можете перезапустити цей тур у будь-який час з меню налаштувань.",
         "tourDone": "Готово",
         "tourNext": "Далі",
-        "tourBack": "Назад"
+        "tourBack": "Назад",
+		"importTypeModalText": "Як ви хочете імпортувати дані з файлу '%s'?",
+		"toastDataMerged": "Успішно об'єднано %d записів у період %s."
     },
     "ka": {
         "appTitle": "ჩემი Transifex-ის ანგარიში",
@@ -4922,7 +4971,9 @@ const translations = {
         "tourStep7": "თქვენ ახლა იცით აპლიკაციის საფუძვლები. თავისუფლად გამოიკვლიეთ! ამ ტურის ნებისმიერ დროს შეგიძლიათ თავიდან დაიწყოთ პარამეტრების მენიუდან.",
         "tourDone": "დასრულება",
         "tourNext": "შემდეგი",
-        "tourBack": "უკან"
+        "tourBack": "უკან",
+		"importTypeModalText": "როგორ გსურთ მონაცემების იმპორტი '%s' ფაილიდან?",
+		"toastDataMerged": "წარმატებით გაერთიანდა %d ჩანაწერი პერიოდში %s."
     },
     "sl": {
         "appTitle": "Moje poročilo Transifex",
@@ -5119,7 +5170,9 @@ const translations = {
         "tourStep7": "Zdaj poznate osnove aplikacije. Prosto raziskujte! Ta ogled lahko kadar koli znova zaženete iz menija Nastavitve.",
         "tourDone": "Končano",
         "tourNext": "Naprej",
-        "tourBack": "Nazaj"
+        "tourBack": "Nazaj",
+		"importTypeModalText": "Kako želite uvoziti podatke iz datoteke '%s'?",
+		"toastDataMerged": "Uspešno združenih %d zapisov v obdobje %s."
     },
     "az": {
         "appTitle": "Transifex hesabatım",
@@ -5316,6 +5369,8 @@ const translations = {
         "tourStep7": "Artıq tətbiqin əsaslarını bilirsiniz. Sərbəst şəkildə kəşf edin! Bu turu istədiyiniz zaman Parametrlər menyusundan yenidən başlada bilərsiniz.",
         "tourDone": "Bitdi",
         "tourNext": "İrəli",
-        "tourBack": "Geri"
+        "tourBack": "Geri",
+		"importTypeModalText": "'%s' faylındakı məlumatları necə daxil etmək istəyirsiniz?",
+		"toastDataMerged": "%d qeyd %s dövrünə uğurla birləşdirildi."
     }
 };

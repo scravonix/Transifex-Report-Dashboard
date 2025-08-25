@@ -9,6 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
 </head>
+<body>
   <div class="container">
     <div class="header">
       <h1 data-translate-key="headerTitle">MY TRANSIFEX REPORT</h1>
@@ -297,7 +298,7 @@
   <div id="csvImportTypeModal" class="modal-overlay">
     <div class="modal-content">
       <h3 data-translate-key="csvImportTypeModalHeader">CSV import type</h3>
-      <p data-translate-key="csvImportTypeModalText">How would you like to import the data from this CSV file?</p>
+      <p id="csvImportTypeModalText" data-translate-key="importTypeModalText"></p>
       <div class="modal-actions vertical">
         <button id="csvImportSingleDateBtn" data-translate-key="csvImportTypeSingleDate">Assign to a single date</button>
         <button id="csvImportAggregatedBtn" data-translate-key="csvImportTypeAggregated">Import as an aggregated report (dateless)</button>
