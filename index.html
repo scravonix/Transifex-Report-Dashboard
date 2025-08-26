@@ -305,6 +305,7 @@
       <h3 data-translate-key="csvImportTypeModalHeader">CSV import type</h3>
       <p id="csvImportTypeModalText" data-translate-key="importTypeModalText"></p>
       <div class="modal-actions vertical">
+        <button id="csvImportMixedBtn" data-translate-key="csvImportTypeMixed" style="display: none;">The file contains both dated and undated entries...</button>
         <button id="csvImportSingleDateBtn" data-translate-key="csvImportTypeSingleDate">Assign to a single date</button>
         <button id="csvImportAggregatedBtn" data-translate-key="csvImportTypeAggregated">Import as an aggregated report (dateless)</button>
         <button id="csvImportCancelBtn" data-translate-key="cancelButton" class="cancel">Cancel</button>
@@ -319,9 +320,29 @@
         <div class="modal-actions vertical">
             <button id="importModeMergeBtn" data-translate-key="importModeMergeButton"></button>
             <button id="importModeOverwriteBtn" data-translate-key="importModeOverwriteButton"></button>
+            <button id="importModeDecideBtn" data-translate-key="importModeDecideButton"></button>
             <button id="importModeCancelBtn" data-translate-key="cancelButton" class="cancel"></button>
         </div>
     </div>
+  </div>
+
+  <div id="decideImportModal" class="modal-overlay">
+      <div class="modal-content">
+          <div class="popup-header">
+            <h3 data-translate-key="decideImportModalHeader"></h3>
+            <button id="cancelDecideImportBtn" class="close-btn">✖</button>
+          </div>
+          <p data-translate-key="decideImportModalText"></p>
+          <div class="decide-list-header">
+              <input type="checkbox" id="decideSelectAllCheckbox" title="Select All">
+              <span data-translate-key="textProject">Project</span>
+              <span data-translate-key="textActions">Actions</span>
+          </div>
+          <ul id="decideImportList" class="custom-scrollbar"></ul>
+          <div class="modal-actions">
+              <button id="applyDecideImportBtn" data-translate-key="actionApply"></button>
+          </div>
+      </div>
   </div>
 
   <div id="csvDateModal" class="modal-overlay">

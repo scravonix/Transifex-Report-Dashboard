@@ -230,6 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function refreshAll() {
       populateFilterDateSelectors(); 
+      applyColors(); 
       applyFiltersAndRender();
       renderSidebar(getFilteredData());
       renderEditorList();
@@ -617,29 +618,52 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     document.getElementById("exportCSVBtn").onclick = async function() {
-      const t = translations[getCurrentLanguage()];
-      const datedData = data.filter(d => d.hasOwnProperty('month'));
-      const header = "Project,Edit,Review,Month,Year\n";
-      const csv = datedData.map(d => `"${d.Project}",${d.Edit_total},${d.Review_total},${d.month + 1},${d.year}`).join("\n");
-      const csvContent = header + csv;
-      const fileName = "transifex-report-monthly.csv";
+        const t = translations[getCurrentLanguage()];
+        
+        const escapeCsvField = (field) => {
+            const str = String(field || '');
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
 
-      if (megaStorage) {
-          try {
-              await megaFolder.upload(fileName, new TextEncoder().encode(csvContent)).complete;
-              showToast(t.toastMegaUploadSuccess.replace('%s', fileName), 'success');
-          } catch (err) {
-              showToast(t.toastMegaError.replace('%s', err.message), 'error');
-          }
-      } else {
-          const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = fileName;
-          a.click();
-          URL.revokeObjectURL(url);
-      }
+        const header = "Project,Edit,Review,Month,Year,ReportName\n";
+        
+        const csvRows = data.map(d => {
+            const project = escapeCsvField(d.Project);
+            const edit = d.Edit_total || 0;
+            const review = d.Review_total || 0;
+
+            if (d.hasOwnProperty('month') && d.hasOwnProperty('year')) {
+                const month = d.month + 1;
+                const year = d.year;
+                return `${project},${edit},${review},${month},${year},`;
+            } else {
+                const reportName = escapeCsvField(d.reportName);
+                return `${project},${edit},${review},,,${reportName}`;
+            }
+        });
+
+        const csvContent = header + csvRows.join("\n");
+        const fileName = "transifex-report-full.csv";
+
+        if (megaStorage) {
+            try {
+                await megaFolder.upload(fileName, new TextEncoder().encode(csvContent)).complete;
+                showToast(t.toastMegaUploadSuccess.replace('%s', fileName), 'success');
+            } catch (err) {
+                showToast(t.toastMegaError.replace('%s', err.message), 'error');
+            }
+        } else {
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
     };
 
     function processImportedData(importedData, options = {}, mode = 'merge') {
@@ -673,6 +697,61 @@ document.addEventListener('DOMContentLoaded', function() {
             showToast(t.toastDataMerged.replace('%d', importedData.length).replace('%s', dateStr), "success");
         }
     }
+    
+    function analyzeCsvContent(csv) {
+        const rows = csv.split("\n");
+        const headerLine = (rows[0] || "").trim().toLowerCase();
+        const header = headerLine.split(",").map(h => h.replace(/"/g, ''));
+
+        const hasProject = header.includes('project');
+        const hasEdit = header.includes('edit');
+        const hasReview = header.includes('review');
+        const hasMonth = header.includes('month');
+        const hasYear = header.includes('year');
+
+        let hasDatedRows = false;
+        let hasUndatedRows = false;
+        const parsedData = [];
+
+        if (!hasProject || !hasEdit || !hasReview) {
+            const summaryData = parseSummaryCSV(csv);
+            if (summaryData.length > 0) {
+                return { data: summaryData, hasDated: false, hasUndated: true };
+            }
+            return { data: [], hasDated: false, hasUndated: false };
+        }
+
+        const pIdx = header.indexOf('project'), eIdx = header.indexOf('edit'), rIdx = header.indexOf('review');
+        const mIdx = hasMonth ? header.indexOf('month') : -1;
+        const yIdx = hasYear ? header.indexOf('year') : -1;
+
+        for (let i = 1; i < rows.length; i++) {
+            if (rows[i].trim() === '') continue;
+            const cols = rows[i].split(",");
+            const pName = cols[pIdx]?.trim().replace(/"/g, '');
+            const ed = parseInt(cols[eIdx], 10);
+            const rev = parseInt(cols[rIdx], 10);
+            
+            if (!pName || isNaN(ed) || isNaN(rev)) continue;
+
+            if (hasMonth && hasYear) {
+                const m = parseInt(cols[mIdx], 10) - 1;
+                const y = parseInt(cols[yIdx], 10);
+
+                if (!isNaN(m) && !isNaN(y) && m >= 0 && m <= 11) {
+                    hasDatedRows = true;
+                    parsedData.push({ Project: pName, Edit_total: ed, Review_total: rev, month: m, year: y });
+                } else {
+                    hasUndatedRows = true;
+                    parsedData.push({ Project: pName, Edit_total: ed, Review_total: rev });
+                }
+            } else {
+                 hasUndatedRows = true;
+                 parsedData.push({ Project: pName, Edit_total: ed, Review_total: rev });
+            }
+        }
+        return { data: parsedData, hasDated: hasDatedRows, hasUndated: hasUndatedRows };
+    }
 
     function handleFileImport(file) {
         if (!file) return;
@@ -682,39 +761,34 @@ document.addEventListener('DOMContentLoaded', function() {
         reader.onload = function(ev) {
             try {
                 const content = ev.target.result;
-                let parsedData;
-                let fileType = file.name.toLowerCase().endsWith('.csv') ? 'csv' : 'json';
+                if (file.name.toLowerCase().endsWith('.csv')) {
+                    const analysis = analyzeCsvContent(content);
 
-                if (fileType === 'csv') {
-                    const headerLine = (content.split("\n")[0] || "").toLowerCase().trim();
-                    if (headerLine.includes("month") && headerLine.includes("year")) {
-                        parsedData = parseMultiMonthCSV(content);
-                        parsedData.forEach(row => addOrUpdateData(row));
-                        showToast(t.toastCsvMultiMonthImported.replace('%d', parsedData.length).replace('%s', file.name), "success");
-                        refreshAll();
-                        return;
-                    } else {
-                        parsedData = parseSummaryCSV(content);
+                    if (!analysis.data.length) {
+                        throw new Error(t.toastInvalidFile);
                     }
-                } else { // json
-                    parsedData = JSON.parse(content);
-                    if (!Array.isArray(parsedData)) {
-                         throw new Error(t.toastInvalidFile);
-                    }
-                }
-                
-                if (!parsedData || parsedData.length === 0) {
+                    
+                    pendingFileImport = { data: analysis.data, name: file.name };
+                    document.getElementById('csvImportMixedBtn').style.display = (analysis.hasDated && analysis.hasUndated) ? 'block' : 'none';
+                    
+                    const modalTextEl = document.getElementById('csvImportTypeModalText');
+                    modalTextEl.innerHTML = t.importTypeModalText.replace('%s', `<strong>${file.name}</strong>`);
+                    
+                    openPopup('csvImportTypeModal');
+
+                } else if (file.name.toLowerCase().endsWith('.json')) {
+                    const parsedData = JSON.parse(content);
+                    if (!Array.isArray(parsedData)) throw new Error(t.toastInvalidFile);
+
+                    const nameWithoutExt = file.name.replace(/\.json$/i, '');
+                    data = parsedData;
+                    refreshAll();
+                    showToast(t.toastFileImported.replace('%s', `"${nameWithoutExt}"`), 'success');
+                } else {
                     throw new Error(t.toastInvalidFile);
                 }
-
-                pendingFileImport = { data: parsedData, name: file.name };
-                
-                const modalTextEl = document.getElementById('csvImportTypeModalText');
-                modalTextEl.innerHTML = t.importTypeModalText.replace('%s', `<strong>${file.name}</strong>`);
-                
-                openPopup('csvImportTypeModal');
-
             } catch (err) {
+                console.error("Import error:", err);
                 showToast(err.message || t.toastInvalidFile, "error");
             }
         };
@@ -740,6 +814,13 @@ document.addEventListener('DOMContentLoaded', function() {
         applyTranslations();
     };
 
+    document.getElementById('csvImportMixedBtn').onclick = () => {
+        importOptions.type = 'mixed';
+        closePopup('csvImportTypeModal');
+        openPopup('importModeModal');
+        applyTranslations();
+    };
+
     document.getElementById('csvImportCancelBtn').onclick = () => {
         closeAllPopups();
         pendingFileImport = null;
@@ -749,16 +830,43 @@ document.addEventListener('DOMContentLoaded', function() {
         importOptions.mode = mode;
         closePopup('importModeModal');
 
+        if (mode === 'decide') {
+            showDecideImportModal();
+            return;
+        }
+
         if (importOptions.type === 'singleDate') {
             openPopup('csvDate');
         } else if (importOptions.type === 'aggregated') {
-            if (!pendingFileImport) return;
             const t = translations[getCurrentLanguage()];
             const reportName = prompt(t.promptReportName, `Report from ${pendingFileImport.name}`);
+            
             if (reportName) {
                 processImportedData(pendingFileImport.data, { reportName }, importOptions.mode);
                 refreshAll();
+                showToast(t.toastAggregatedReportImported.replace('%s', reportName).replace('%d', pendingFileImport.data.length), "success");
             }
+            closeAllPopups();
+            pendingFileImport = null;
+            importOptions = {};
+
+        } else if (importOptions.type === 'mixed') {
+            const t = translations[getCurrentLanguage()];
+            const reportName = prompt(t.promptReportName, `Aggregated from ${pendingFileImport.name}`);
+            
+            if (reportName) {
+                pendingFileImport.data.forEach(item => {
+                    if (item.hasOwnProperty('month') && item.hasOwnProperty('year')) {
+                        addOrUpdateData(item, {}, importOptions.mode);
+                    } else {
+                        item.reportName = reportName;
+                        addOrUpdateData(item, {}, importOptions.mode);
+                    }
+                });
+                showToast(t.toastCsvImported.replace('%s', pendingFileImport.name), "success");
+                refreshAll();
+            }
+            closeAllPopups();
             pendingFileImport = null;
             importOptions = {};
         }
@@ -766,6 +874,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('importModeMergeBtn').onclick = () => handleImportModeSelection('merge');
     document.getElementById('importModeOverwriteBtn').onclick = () => handleImportModeSelection('overwrite');
+    document.getElementById('importModeDecideBtn').onclick = () => handleImportModeSelection('decide');
     document.getElementById('importModeCancelBtn').onclick = () => {
         closeAllPopups();
         pendingFileImport = null;
@@ -828,26 +937,6 @@ document.addEventListener('DOMContentLoaded', function() {
                  showToast(t.toastProjectAdded.replace('%s', Project), "success");
             }
         }
-    }
-
-    function parseMultiMonthCSV(csv) {
-        const t = translations[getCurrentLanguage()];
-        const rows = csv.split("\n");
-        const header = rows[0].trim().toLowerCase().split(",").map(h => h.replace(/"/g, ''));
-        if (!['project', 'edit', 'review', 'month', 'year'].every(col => header.includes(col))) {
-            throw new Error(t.toastCsvInvalidMultiMonthFormat);
-        }
-        const pIdx = header.indexOf('project'), eIdx = header.indexOf('edit'), rIdx = header.indexOf('review'), mIdx = header.indexOf('month'), yIdx = header.indexOf('year');
-        const result = [];
-        for (let i = 1; i < rows.length; i++) {
-            if (rows[i].trim() === '') continue;
-            const cols = rows[i].split(",");
-            const pName = cols[pIdx]?.trim().replace(/"/g, ''), ed = parseInt(cols[eIdx], 10), rev = parseInt(cols[rIdx], 10), m = parseInt(cols[mIdx], 10) - 1, y = parseInt(cols[yIdx], 10);
-            if (pName && !isNaN(ed) && !isNaN(rev) && !isNaN(m) && !isNaN(y) && m >= 0 && m <= 11) {
-                result.push({ Project: pName, Edit_total: ed, Review_total: rev, month: m, year: y });
-            }
-        }
-        return result;
     }
 
     function parseSummaryCSV(csv) {
@@ -1099,22 +1188,80 @@ document.addEventListener('DOMContentLoaded', function() {
         const reviewColor = document.getElementById("reviewColor").value;
         document.body.style.setProperty('--edit-color', editColor);
         document.body.style.setProperty('--review-color', reviewColor);
+        
         document.querySelector(".total-box.edit").style.background = editColor + "33";
         document.querySelector(".total-box.edit").style.color = editColor;
         document.querySelector(".total-box.review").style.background = reviewColor + "33";
         document.querySelector(".total-box.review").style.color = reviewColor;
+        
         if (mainChart) {
             const type = mainChart.config.type;
-            mainChart.data.datasets[0].backgroundColor = type === 'bar' ? editColor : 'transparent';
-            mainChart.data.datasets[0].borderColor = editColor;
-            mainChart.data.datasets[1].backgroundColor = type === 'bar' ? reviewColor : 'transparent';
-            mainChart.data.datasets[1].borderColor = reviewColor;
+            const isBar = type === 'bar';
+            const filteredData = getFilteredData();
+            const chartData = (document.getElementById('viewType').value === 'monthly') 
+                               ? aggregateDataByMonth(filteredData) 
+                               : aggregateDataByProject(filteredData);
+            
+            let highlightEditColors = Array(chartData.labels.length).fill(isBar ? editColor : 'transparent');
+            let highlightReviewColors = Array(chartData.labels.length).fill(isBar ? reviewColor : 'transparent');
+            let highlightEditBorders = Array(chartData.labels.length).fill(editColor);
+            let highlightReviewBorders = Array(chartData.labels.length).fill(reviewColor);
+
+            if (chartSearchTerm) {
+                const transparent = (colorStr) => colorStr.startsWith('hsl') ? colorStr.replace(')', ', 0.2)').replace('hsl', 'hsla') : colorStr + '33';
+                highlightEditColors = chartData.labels.map(label => label.toLowerCase().includes(chartSearchTerm) ? (isBar ? editColor : 'transparent') : transparent(editColor));
+                highlightReviewColors = chartData.labels.map(label => label.toLowerCase().includes(chartSearchTerm) ? (isBar ? reviewColor : 'transparent') : transparent(reviewColor));
+                highlightEditBorders = chartData.labels.map(label => label.toLowerCase().includes(chartSearchTerm) ? editColor : transparent(editColor));
+                highlightReviewBorders = chartData.labels.map(label => label.toLowerCase().includes(chartSearchTerm) ? reviewColor : transparent(reviewColor));
+            }
+
+            mainChart.data.datasets[0].backgroundColor = highlightEditColors;
+            mainChart.data.datasets[0].borderColor = highlightEditBorders;
+            mainChart.data.datasets[1].backgroundColor = highlightReviewColors;
+            mainChart.data.datasets[1].borderColor = highlightReviewBorders;
             mainChart.update();
+        }
+
+        if (editPieChart && reviewPieChart) {
+            const chartData = aggregateDataByProject(getFilteredData());
+            const colors = generateDistinctColors(chartData.labels.length);
+            
+            const positiveEditData = [], positiveEditLabels = [], positiveEditColors = [];
+            chartData.editData.forEach((val, index) => {
+                if (val > 0) {
+                    positiveEditData.push(val);
+                    positiveEditLabels.push(chartData.labels[index]);
+                    positiveEditColors.push(colors[index]);
+                }
+            });
+
+            const positiveReviewData = [], positiveReviewLabels = [], positiveReviewColors = [];
+            chartData.reviewData.forEach((val, index) => {
+                if (val > 0) {
+                    positiveReviewData.push(val);
+                    positiveReviewLabels.push(chartData.labels[index]);
+                    positiveReviewColors.push(colors[index]);
+                }
+            });
+            
+            editPieChart.data.labels = positiveEditLabels;
+            editPieChart.data.datasets[0].data = positiveEditData;
+            editPieChart.data.datasets[0].backgroundColor = positiveEditColors;
+            editPieChart.update();
+
+            reviewPieChart.data.labels = positiveReviewLabels;
+            reviewPieChart.data.datasets[0].data = positiveReviewData;
+            reviewPieChart.data.datasets[0].backgroundColor = positiveReviewColors;
+            reviewPieChart.update();
         }
     }
 
     document.getElementById("editColor").value = defaultEditColor;
     document.getElementById("reviewColor").value = defaultReviewColor;
+
+    document.getElementById("editColor").oninput = applyColors;
+    document.getElementById("reviewColor").oninput = applyColors;
+    
     document.getElementById("saveColors").onclick = () => {
       if (!isLocalStorageAvailable()) {
           const t = translations[getCurrentLanguage()];
@@ -1134,6 +1281,7 @@ document.addEventListener('DOMContentLoaded', function() {
         settings: document.getElementById("settingsPopup"),
         csvImportTypeModal: document.getElementById("csvImportTypeModal"),
         importModeModal: document.getElementById("importModeModal"),
+        decideImportModal: document.getElementById("decideImportModal"),
         csvDate: document.getElementById("csvDateModal"),
         batchDate: document.getElementById("batchDateModal"),
         filterInfo: document.getElementById("filterInfoModal"),
@@ -1170,11 +1318,32 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function closeAllPopups() {
-        for (const key in popups) {
-            closePopup(key);
+    const popups = {
+        sidebar: document.getElementById("sidebar"),
+        editor: document.getElementById("editorPopup"),
+        settings: document.getElementById("settingsPopup"),
+        csvImportTypeModal: document.getElementById("csvImportTypeModal"),
+        importModeModal: document.getElementById("importModeModal"),
+        decideImportModal: document.getElementById("decideImportModal"),
+        csvDate: document.getElementById("csvDateModal"),
+        batchDate: document.getElementById("batchDateModal"),
+        filterInfo: document.getElementById("filterInfoModal"),
+        confirmLoad: document.getElementById("confirmLoadModal"),
+        megaLogin: document.getElementById("megaLoginModal"),
+    };
+    const overlay = document.getElementById("overlay");
+    
+    for (const key in popups) {
+        if (popups[key]) {
+            if (key === 'sidebar') {
+                popups[key].classList.remove('open');
+            } else {
+                popups[key].classList.remove('show');
+            }
         }
-        overlay.classList.remove('show');
     }
+    overlay.classList.remove('show');
+}
 
     document.getElementById("openSidebar").onclick = () => { renderSidebar(getFilteredData()); openPopup('sidebar'); };
     document.getElementById("openSettings").onclick = () => { openPopup('settings'); };
@@ -1915,6 +2084,131 @@ document.addEventListener('DOMContentLoaded', function() {
         return tour;
     }
 
+    function showDecideImportModal() {
+        const t = translations[getCurrentLanguage()];
+        const list = document.getElementById('decideImportList');
+        list.innerHTML = '';
+        const conflictingItems = [];
+        const newItems = [];
+
+        let tempImportOptions = {...importOptions};
+        
+        pendingFileImport.data.forEach((item, index) => {
+            let newItem = {...item};
+
+            if (tempImportOptions.type === 'singleDate') {
+                const year = parseInt(document.getElementById('csvYear').value);
+                const month = parseInt(document.getElementById('csvMonth').value);
+                newItem.year = year;
+                newItem.month = month;
+            }
+
+            const existingIndex = data.findIndex(d => 
+                d.Project === newItem.Project &&
+                (
+                    (d.hasOwnProperty('month') && newItem.hasOwnProperty('month') && d.year === newItem.year && d.month === newItem.month) ||
+                    (d.hasOwnProperty('reportName') && newItem.hasOwnProperty('reportName') && d.reportName === newItem.reportName)
+                )
+            );
+            
+            if (existingIndex > -1) {
+                conflictingItems.push({ newItem, existingItem: data[existingIndex], importIndex: index });
+            } else {
+                newItems.push(newItem);
+            }
+        });
+
+        if (conflictingItems.length === 0) {
+            handleFinalImport(newItems, []);
+            showToast(t.toastNoConflictsFound, 'info');
+            pendingFileImport = null;
+            importOptions = {};
+            return;
+        }
+        
+        conflictingItems.forEach((conflict, i) => {
+            const { newItem } = conflict;
+            const li = document.createElement('li');
+            const dateInfo = newItem.hasOwnProperty('month') 
+                ? `${t.months[newItem.month]} ${newItem.year}` 
+                : `${t.reportLabel.replace(':', '')}: ${newItem.reportName || 'N/A'}`;
+
+            li.innerHTML = `
+                <input type="checkbox" class="decide-checkbox" data-index="${i}">
+                <div class="decide-project-info">
+                    <strong>${newItem.Project}</strong>
+                    <small>${dateInfo}</small>
+                </div>
+                <div class="decide-actions">
+                    <input type="radio" id="merge-${i}" name="action-${i}" value="merge" checked>
+                    <label for="merge-${i}">${t.actionMerge}</label>
+                    <input type="radio" id="overwrite-${i}" name="action-${i}" value="overwrite">
+                    <label for="overwrite-${i}">${t.actionOverwrite}</label>
+                    <input type="radio" id="skip-${i}" name="action-${i}" value="skip">
+                    <label for="skip-${i}">${t.actionSkip}</label>
+                </div>
+            `;
+            list.appendChild(li);
+        });
+        
+        document.getElementById('decideSelectAllCheckbox').onchange = (e) => {
+            list.querySelectorAll('.decide-checkbox').forEach(box => box.checked = e.target.checked);
+        };
+        
+        openPopup('decideImportModal');
+        applyTranslations();
+        
+        document.getElementById('applyDecideImportBtn').onclick = () => {
+            const decisions = conflictingItems.map((_, i) => {
+                return document.querySelector(`input[name="action-${i}"]:checked`).value;
+            });
+
+            const itemsToProcess = conflictingItems
+                .map((conflict, i) => ({ ...conflict, action: decisions[i] }))
+                .filter(item => item.action !== 'skip');
+
+            handleFinalImport(newItems, itemsToProcess);
+        };
+        
+        document.getElementById('cancelDecideImportBtn').onclick = () => {
+            closeAllPopups();
+            pendingFileImport = null;
+            importOptions = {};
+        };
+    }
+
+    function handleFinalImport(newItems, decidedItems) {
+        const t = translations[getCurrentLanguage()];
+        let reportNameForNewUndated = null;
+
+        const newUndatedItems = newItems.filter(item => !item.hasOwnProperty('month'));
+        if (newUndatedItems.length > 0 && (importOptions.type === 'aggregated' || importOptions.type === 'mixed')) {
+            reportNameForNewUndated = prompt(t.promptReportName, `Report from ${pendingFileImport.name}`);
+            if (!reportNameForNewUndated) {
+                closeAllPopups();
+                pendingFileImport = null;
+                importOptions = {};
+                return;
+            }
+        }
+        
+        newItems.forEach(item => {
+            if (!item.hasOwnProperty('month') && reportNameForNewUndated) {
+                item.reportName = reportNameForNewUndated;
+            }
+            addOrUpdateData(item, {}, 'merge'); 
+        });
+
+        decidedItems.forEach(item => {
+            addOrUpdateData(item.newItem, {}, item.action);
+        });
+
+        closeAllPopups();
+        showToast(t.toastImportApplied, 'success');
+        refreshAll();
+        pendingFileImport = null;
+        importOptions = {};
+    }
 
     function initializeApp() {
         if (!isLocalStorageAvailable()) {
