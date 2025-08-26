@@ -61,6 +61,10 @@
            <option value="aggregated" data-translate-key="viewTypeAggregated">Aggregated reports</option>
          </select>
        </div>
+       <div class="filter-item">
+        <label for="chartSearchInput" data-translate-key="chartSearchLabel">Search in Chart:</label>
+        <input type="text" id="chartSearchInput" data-translate-key-placeholder="chartSearchPlaceholder">
+      </div>
       <button id="clearFilterBtn" data-translate-key="clearFilterButton">Clear</button>
       <button id="filterInfoBtn" class="info-btn" aria-label="Filter information">ℹ️</button>
     </div>
@@ -197,7 +201,8 @@
         </div>
         
         <div id="batchActionContainer" class="batch-action-container" style="display: none;">
-            <button id="deleteSelectedRowsBtn" class="clear-btn" data-translate-key="batchDeleteButton">Delete selected</button>
+            <button id="deleteSelectedRowsBtn" class="batch-action-btn batch-btn-danger" data-translate-key="batchDeleteButton">Delete selected</button>
+            <button id="batchEditDateBtn" class="batch-action-btn batch-btn-primary" data-translate-key="batchEditDateButton">Change Date</button>
         </div>
 
         <div class="editor-list-header">
@@ -307,6 +312,18 @@
     </div>
   </div>
 
+  <div id="importModeModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 data-translate-key="importModeModalHeader"></h3>
+        <p data-translate-key="importModeModalText"></p>
+        <div class="modal-actions vertical">
+            <button id="importModeMergeBtn" data-translate-key="importModeMergeButton"></button>
+            <button id="importModeOverwriteBtn" data-translate-key="importModeOverwriteButton"></button>
+            <button id="importModeCancelBtn" data-translate-key="cancelButton" class="cancel"></button>
+        </div>
+    </div>
+  </div>
+
   <div id="csvDateModal" class="modal-overlay">
     <div class="modal-content">
       <h3 data-translate-key="csvModalHeader">Select a date for CSV data</h3>
@@ -318,6 +335,21 @@
       <div class="modal-actions">
         <button id="confirmCsvDate" data-translate-key="confirmButton">Confirm</button>
         <button id="cancelCsvDate" data-translate-key="cancelButton" class="cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="batchDateModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 data-translate-key="batchEditDateModalHeader">Change Date for Selected Rows</h3>
+      <p data-translate-key="batchEditDateModalText">Please select a new month and year to apply to all selected dated entries.</p>
+      <div class="date-select-group">
+        <select id="batchMonth" required></select>
+        <select id="batchYear" required></select>
+      </div>
+      <div class="modal-actions">
+        <button id="confirmBatchDate" data-translate-key="confirmButton">Confirm</button>
+        <button id="cancelBatchDate" data-translate-key="cancelButton" class="cancel">Cancel</button>
       </div>
     </div>
   </div>

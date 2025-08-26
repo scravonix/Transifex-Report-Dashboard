@@ -4,9 +4,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastSortField = '';
     let sortDirection = 1;
     let pendingFileImport = null;
+    let importOptions = {};
     let currentPage = 1;
     const itemsPerPage = 8;
     let editorSearchTerm = '';
+    let chartSearchTerm = '';
     let isChartAnimating = false;
 
     let undoTimer = null;
@@ -19,77 +21,112 @@ document.addEventListener('DOMContentLoaded', function() {
     let megaFolder = null;
     const MEGA_FOLDER_NAME = 'Transifex report for MEGA';
 
+    function isLocalStorageAvailable() {
+        let storage;
+        try {
+            storage = window.localStorage;
+            const x = '__storage_test__';
+            storage.setItem(x, x);
+            storage.removeItem(x);
+            return true;
+        } catch (e) {
+            return e instanceof DOMException && (
+                e.code === 22 ||
+                e.code === 1014 ||
+                e.name === 'QuotaExceededError' ||
+                e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+                (storage && storage.length !== 0);
+        }
+    }
+
+    function displayStorageWarning() {
+        const t = translations[getCurrentLanguage()];
+        const warningBanner = document.createElement('div');
+        warningBanner.className = 'storage-warning-banner';
+        warningBanner.textContent = t.storageWarningBanner;
+        document.body.prepend(warningBanner);
+    }
+
+
     function getCurrentLanguage() {
         const savedLang = localStorage.getItem('language');
         if (savedLang && translations[savedLang]) return savedLang;
         return 'en';
     }
     function saveLanguage(lang) {
-        localStorage.setItem('language', lang);
+        if (!isLocalStorageAvailable()) return;
+        try {
+            localStorage.setItem('language', lang);
+        } catch (e) {
+            console.error("Could not save language: ", e);
+        }
     }
     const currentLang = getCurrentLanguage();
 
-    // app.js
-function applyTranslations() {
-    const lang = getCurrentLanguage();
-    const t = translations[lang];
+    function applyTranslations() {
+        const lang = getCurrentLanguage();
+        const t = translations[lang];
 
-    // YARDIMCI FONKSİYON: Bir metin içindeki %anahtar% formatındaki yer tutucuları çözer.
-    const resolvePlaceholders = (text) => {
-        // Metin yoksa veya string değilse, olduğu gibi geri döndür.
-        if (!text || typeof text !== 'string') return text;
-        
-        // %anahtar% formatındaki tüm eşleşmeleri bul ve değiştir.
-        return text.replace(/%(\w+)%/g, (match, key) => {
-            // Eşleşen anahtar (key) çeviriler (t) içinde varsa, onun değeriyle değiştir.
-            // Yoksa, orijinal metni (%anahtar%) koru ki hata oluşmasın.
-            return t[key] || match;
-        });
-    };
+        const resolvePlaceholders = (text) => {
+            if (!text || typeof text !== 'string') return text;
+            return text.replace(/%(\w+)%/g, (match, key) => {
+                return t[key] || match;
+            });
+        };
 
-    document.querySelectorAll('[data-translate-key]').forEach(el => {
-        const key = el.getAttribute('data-translate-key');
-        if (t[key]) {
-            // Orijinal çeviri metnini al ve içindeki yer tutucuları çöz.
-            const resolvedText = resolvePlaceholders(t[key]);
-            
-            const tempDiv = document.createElement('div');
-            // Çözülmüş metni HTML'e ata.
-            tempDiv.innerHTML = resolvedText;
-            
-            if (el.tagName === 'UL' && tempDiv.querySelector('ul')) {
-                el.innerHTML = tempDiv.querySelector('ul').innerHTML;
-            } else {
-                el.innerHTML = tempDiv.innerHTML;
+        document.querySelectorAll('[data-translate-key]').forEach(el => {
+            const key = el.getAttribute('data-translate-key');
+            if (t[key]) {
+                const resolvedText = resolvePlaceholders(t[key]);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = resolvedText;
+                
+                if (el.tagName === 'UL' && tempDiv.querySelector('ul')) {
+                    el.innerHTML = tempDiv.querySelector('ul').innerHTML;
+                } else {
+                    el.innerHTML = tempDiv.innerHTML;
+                }
             }
-        }
-    });
-    
-    document.querySelectorAll('[data-translate-key-placeholder]').forEach(el => {
-        const key = el.getAttribute('data-translate-key-placeholder');
-        // placeholder'lar için de aynı mantığı uygulayabiliriz.
-        if (t[key]) el.placeholder = resolvePlaceholders(t[key]);
-    });
+        });
+        
+        document.querySelectorAll('[data-translate-key-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-translate-key-placeholder');
+            if (t[key]) el.placeholder = resolvePlaceholders(t[key]);
+        });
 
-    document.title = t.appTitle;
-    const themeButton = document.getElementById('toggleTheme');
-    themeButton.textContent = document.body.classList.contains('dark') ? t.themeButtonLight : t.themeButtonDark;
-    if (mainChart) {
-        mainChart.data.datasets[0].label = t.editLabel;
-        mainChart.data.datasets[1].label = t.reviewLabel;
-        mainChart.update();
+        document.title = t.appTitle;
+        const themeButton = document.getElementById('toggleTheme');
+        themeButton.textContent = document.body.classList.contains('dark') ? t.themeButtonLight : t.themeButtonDark;
+        if (mainChart) {
+            mainChart.data.datasets[0].label = t.editLabel;
+            mainChart.data.datasets[1].label = t.reviewLabel;
+            mainChart.update();
+        }
+        updateMegaUI();
     }
-    updateMegaUI();
-}
 
     function saveData() {
-      if (megaStorage) {
-        return; 
-      }
-      localStorage.setItem("chartData", JSON.stringify(data));
+        if (megaStorage || !isLocalStorageAvailable()) {
+            return; 
+        }
+        try {
+            localStorage.setItem("chartData", JSON.stringify(data));
+        } catch (e) {
+            console.error("Failed to save data:", e);
+            const t = translations[getCurrentLanguage()];
+            showToast(t.toastLocalStorageError, 'error');
+        }
     }
 
-    const saved = localStorage.getItem("chartData");
+    let saved = null;
+    if (isLocalStorageAvailable()) {
+        try {
+            saved = localStorage.getItem("chartData");
+        } catch(e) {
+            console.error("Failed to read initial data:", e);
+        }
+    }
+
     if (saved) {
       data = JSON.parse(saved);
     } else {
@@ -135,42 +172,52 @@ function applyTranslations() {
 
     function showUndoToast(message, undoCallback) {
         const t = translations[getCurrentLanguage()];
-        if (undoTimer) {
-            clearTimeout(undoTimer);
-            document.querySelector('.toast-undo')?.remove();
-        }
-
         const toastContainer = document.getElementById('toast-container');
         const toast = document.createElement('div');
         toast.className = 'toast toast-warning toast-undo';
+
+        const contentWrapper = document.createElement('div');
+        contentWrapper.className = 'toast-content-wrapper';
 
         const messageSpan = document.createElement('span');
         messageSpan.textContent = message;
 
         const undoButton = document.createElement('button');
         undoButton.textContent = t.undoButton;
+
+        contentWrapper.appendChild(messageSpan);
+        contentWrapper.appendChild(undoButton);
+        
+        const closeButton = document.createElement('button');
+        closeButton.className = 'toast-close-btn';
+        closeButton.innerHTML = '&times;';
+
+        const progressBar = document.createElement('div');
+        progressBar.className = 'toast-progress';
+
+        toast.appendChild(contentWrapper);
+        toast.appendChild(closeButton);
+        toast.appendChild(progressBar);
+        toastContainer.appendChild(toast);
+
+        const toastTimer = setTimeout(() => {
+            toast.classList.add('hide');
+            toast.addEventListener('transitionend', () => toast.remove());
+        }, 10000);
+
         undoButton.onclick = () => {
-            clearTimeout(undoTimer);
+            clearTimeout(toastTimer);
             undoCallback();
             toast.remove();
             showToast(t.toastActionUndone, 'info');
         };
-        
-        const progressBar = document.createElement('div');
-        progressBar.className = 'toast-progress';
 
-        toast.appendChild(messageSpan);
-        toast.appendChild(undoButton);
-        toast.appendChild(progressBar);
-        toastContainer.appendChild(toast);
-
-        undoTimer = setTimeout(() => {
+        closeButton.onclick = () => {
+            clearTimeout(toastTimer);
             toast.classList.add('hide');
             toast.addEventListener('transitionend', () => toast.remove());
-            undoTimer = null;
-        }, 10000);
+        };
     }
-
 
     function updateTotals(dataToRender = []) {
       document.getElementById("totalEdit").textContent = dataToRender.reduce((a, b) => a + (b.Edit_total || 0), 0);
@@ -226,6 +273,13 @@ function applyTranslations() {
         const chartType = document.getElementById('chartTypeSelect').value;
         const t = translations[getCurrentLanguage()];
 
+        const transparent = (colorStr) => {
+            if (colorStr.startsWith('hsl')) {
+                return colorStr.replace(')', ', 0.2)').replace('hsl', 'hsla');
+            }
+            return colorStr + '33';
+        };
+
         if (viewType === 'aggregated' && filteredData.length === 0) {
             const anyAggregatedDataExists = data.some(d => d.hasOwnProperty('reportName'));
             if (!anyAggregatedDataExists) {
@@ -233,8 +287,15 @@ function applyTranslations() {
             }
         }
         if (chartType === 'pie') {
-            const chartData = aggregateDataByProject(filteredData);
-            const colors = generateDistinctColors(chartData.labels.length);
+            let chartData = aggregateDataByProject(filteredData);
+            let colors = generateDistinctColors(chartData.labels.length);
+
+            if (chartSearchTerm) {
+                colors = chartData.labels.map((label, index) => 
+                    label.toLowerCase().includes(chartSearchTerm) ? colors[index] : transparent(colors[index])
+                );
+            }
+            
             const positiveEditData = [], positiveEditLabels = [], positiveEditColors = [];
             chartData.editData.forEach((val, index) => {
                 if (val > 0) {
@@ -277,9 +338,29 @@ function applyTranslations() {
                     break;
             }
             if (mainChart) {
+                const editColor = localStorage.getItem("editColor") || "#10b981";
+                const reviewColor = localStorage.getItem("reviewColor") || "#ea580c";
+
                 mainChart.data.labels = chartData.labels;
                 mainChart.data.datasets[0].data = chartData.editData;
                 mainChart.data.datasets[1].data = chartData.reviewData;
+                
+                const numLabels = chartData.labels.length;
+
+                if (chartSearchTerm) {
+                    const highlightLogic = (color) => chartData.labels.map(label => 
+                        label.toLowerCase().includes(chartSearchTerm) ? color : transparent(color)
+                    );
+                    mainChart.data.datasets[0].backgroundColor = mainChart.config.type === 'bar' ? highlightLogic(editColor) : 'transparent';
+                    mainChart.data.datasets[0].borderColor = highlightLogic(editColor);
+                    mainChart.data.datasets[1].backgroundColor = mainChart.config.type === 'bar' ? highlightLogic(reviewColor) : 'transparent';
+                    mainChart.data.datasets[1].borderColor = highlightLogic(reviewColor);
+                } else {
+                    mainChart.data.datasets[0].backgroundColor = mainChart.config.type === 'bar' ? Array(numLabels).fill(editColor) : 'transparent';
+                    mainChart.data.datasets[0].borderColor = Array(numLabels).fill(editColor);
+                    mainChart.data.datasets[1].backgroundColor = mainChart.config.type === 'bar' ? Array(numLabels).fill(reviewColor) : 'transparent';
+                    mainChart.data.datasets[1].borderColor = Array(numLabels).fill(reviewColor);
+                }
                 mainChart.update();
             }
         }
@@ -561,7 +642,7 @@ function applyTranslations() {
       }
     };
 
-    function processImportedData(importedData, options = {}) {
+    function processImportedData(importedData, options = {}, mode = 'merge') {
         const t = translations[getCurrentLanguage()];
         const { reportName, month, year } = options;
 
@@ -573,7 +654,7 @@ function applyTranslations() {
                     Review_total: row.Review_total || 0, 
                     reportName: reportName 
                 };
-                data.push(newRow);
+                addOrUpdateData(newRow, {}, mode);
             });
             showToast(t.toastAggregatedReportImported.replace('%s', reportName).replace('%d', importedData.length), "success");
         } else {
@@ -585,7 +666,7 @@ function applyTranslations() {
                     month: month, 
                     year: year 
                 };
-                addOrUpdateData(newRow);
+                addOrUpdateData(newRow, {}, mode);
             });
             const monthName = t.months[month];
             const dateStr = `${monthName} ${year}`;
@@ -646,46 +727,79 @@ function applyTranslations() {
     };
 
     document.getElementById('csvImportSingleDateBtn').onclick = () => {
+        importOptions.type = 'singleDate';
         closePopup('csvImportTypeModal');
-        openPopup('csvDate');
+        openPopup('importModeModal');
+        applyTranslations();
     };
     
     document.getElementById('csvImportAggregatedBtn').onclick = () => {
-        closeAllPopups();
-        if (!pendingFileImport) return;
-        const t = translations[getCurrentLanguage()];
-        const reportName = prompt(t.promptReportName, `Report from ${pendingFileImport.name}`);
-        if (reportName) {
-            processImportedData(pendingFileImport.data, { reportName });
-            refreshAll();
-        }
-        pendingFileImport = null;
+        importOptions.type = 'aggregated';
+        closePopup('csvImportTypeModal');
+        openPopup('importModeModal');
+        applyTranslations();
     };
 
     document.getElementById('csvImportCancelBtn').onclick = () => {
         closeAllPopups();
         pendingFileImport = null;
     };
+    
+    function handleImportModeSelection(mode) {
+        importOptions.mode = mode;
+        closePopup('importModeModal');
+
+        if (importOptions.type === 'singleDate') {
+            openPopup('csvDate');
+        } else if (importOptions.type === 'aggregated') {
+            if (!pendingFileImport) return;
+            const t = translations[getCurrentLanguage()];
+            const reportName = prompt(t.promptReportName, `Report from ${pendingFileImport.name}`);
+            if (reportName) {
+                processImportedData(pendingFileImport.data, { reportName }, importOptions.mode);
+                refreshAll();
+            }
+            pendingFileImport = null;
+            importOptions = {};
+        }
+    }
+
+    document.getElementById('importModeMergeBtn').onclick = () => handleImportModeSelection('merge');
+    document.getElementById('importModeOverwriteBtn').onclick = () => handleImportModeSelection('overwrite');
+    document.getElementById('importModeCancelBtn').onclick = () => {
+        closeAllPopups();
+        pendingFileImport = null;
+        importOptions = {};
+    };
 
     document.getElementById('confirmCsvDate').onclick = () => {
         if (!pendingFileImport) return;
         const year = parseInt(document.getElementById('csvYear').value);
         const month = parseInt(document.getElementById('csvMonth').value);
-        processImportedData(pendingFileImport.data, { month, year });
+        processImportedData(pendingFileImport.data, { month, year }, importOptions.mode);
         refreshAll();
         closeAllPopups();
         pendingFileImport = null;
+        importOptions = {};
     };
 
     document.getElementById('cancelCsvDate').onclick = () => {
         closeAllPopups();
         pendingFileImport = null;
+        importOptions = {};
     };
 
-    function addOrUpdateData(item, options = {}) {
-        const { Project, Edit_total, Review_total, year, month } = item;
+    function addOrUpdateData(item, options = {}, mode = 'merge') {
+        const { Project, Edit_total, Review_total, year, month, reportName } = item;
         const t = translations[getCurrentLanguage()];
-        const existingIndex = data.findIndex(d => d.Project === Project && d.year === year && d.month === month);
+        
+        let existingIndex = -1;
+        if (item.hasOwnProperty('month')) {
+            existingIndex = data.findIndex(d => d.Project === Project && d.year === year && d.month === month);
+        } else if (item.hasOwnProperty('reportName')) {
+            existingIndex = data.findIndex(d => d.Project === Project && d.reportName === reportName);
+        }
+
         if (existingIndex > -1) {
             if (options.isManualAdd) {
                 const monthName = t.months[month];
@@ -700,8 +814,13 @@ function applyTranslations() {
                     showToast(t.toastDataAdded, "success");
                 }
             } else {
-                data[existingIndex].Edit_total += Edit_total;
-                data[existingIndex].Review_total += Review_total;
+                if (mode === 'overwrite') {
+                    data[existingIndex].Edit_total = Edit_total;
+                    data[existingIndex].Review_total = Review_total;
+                } else { // merge
+                    data[existingIndex].Edit_total += Edit_total;
+                    data[existingIndex].Review_total += Review_total;
+                }
             }
         } else {
             data.push(item);
@@ -789,6 +908,25 @@ function applyTranslations() {
             }
         };
 
+        const tooltipCallbacks = {
+            label: function(context) {
+                let label = context.dataset.label || context.label || '';
+                if (label) {
+                    label += ': ';
+                }
+                const value = context.raw;
+                const allData = context.chart.data.datasets[context.datasetIndex].data;
+                const total = allData.reduce((acc, curr) => acc + curr, 0);
+                if (total > 0) {
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    label += `${value} (${percentage}%)`;
+                } else {
+                    label += value;
+                }
+                return label;
+            }
+        };
+
         if (type === 'pie') {
             mainContainer.style.display = 'none';
             pieContainer.style.display = 'flex';
@@ -797,7 +935,10 @@ function applyTranslations() {
             const pieOptions = {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'right', labels: { color: getTextColor() } } },
+                plugins: { 
+                    legend: { position: 'right', labels: { color: getTextColor() } },
+                    tooltip: { callbacks: tooltipCallbacks }
+                },
                 animation: animationOptions
             };
             editPieChart = new Chart(document.getElementById('editPieChart').getContext('2d'), {
@@ -813,7 +954,11 @@ function applyTranslations() {
             const isStacked = type === 'stacked';
             const options = {
                 responsive: true,
-                plugins: { legend: { position: 'bottom', labels: { color: getTextColor() } }, zoom: { pan: { enabled: true, mode: 'x' }, zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' } } },
+                plugins: { 
+                    legend: { position: 'bottom', labels: { color: getTextColor() } }, 
+                    zoom: { pan: { enabled: true, mode: 'x' }, zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' } },
+                    tooltip: { callbacks: tooltipCallbacks }
+                },
                 scales: {
                     x: { ticks: { color: getTextColor(), maxRotation: 45, minRotation: 45 }, stacked: isStacked },
                     y: { ticks: { color: getTextColor() }, beginAtZero: true, stacked: isStacked }
@@ -836,6 +981,7 @@ function applyTranslations() {
 
     document.getElementById("chartTypeSelect").onchange = function(e) {
       const newType = e.target.value;
+      if(isLocalStorageAvailable()) localStorage.setItem('defaultChartType', newType);
       const t = translations[getCurrentLanguage()];
       const selectedOption = e.target.options[e.target.selectedIndex];
       const chartTypeName = selectedOption.textContent;
@@ -882,12 +1028,16 @@ function applyTranslations() {
 
     document.getElementById('clearFilterBtn').onclick = () => {
         document.getElementById('viewType').value = 'total';
+        if(isLocalStorageAvailable()) localStorage.setItem('defaultViewType', 'total');
+        document.getElementById('chartSearchInput').value = '';
+        chartSearchTerm = '';
         populateFilterDateSelectors(true);
         toggleFilterVisibility(); 
         applyFiltersAndRender();
     };
 
-    document.getElementById('viewType').onchange = () => {
+    document.getElementById('viewType').onchange = (e) => {
+        if(isLocalStorageAvailable()) localStorage.setItem('defaultViewType', e.target.value);
         toggleFilterVisibility();
         applyFiltersAndRender();
     };
@@ -905,7 +1055,7 @@ function applyTranslations() {
             availableYears.sort((a,b) => a-b);
         }
         if (availableYears.length === 0) availableYears.push(currentFullYear);
-        const selectors = ['startYear', 'endYear', 'singleYear', 'dataYear', 'csvYear'];
+        const selectors = ['startYear', 'endYear', 'singleYear', 'dataYear', 'csvYear', 'batchYear'];
         const t = translations[getCurrentLanguage()];
         selectors.forEach(selId => {
             const ySel = document.getElementById(selId), mSel = document.getElementById(selId.replace('Year', 'Month'));
@@ -966,6 +1116,11 @@ function applyTranslations() {
     document.getElementById("editColor").value = defaultEditColor;
     document.getElementById("reviewColor").value = defaultReviewColor;
     document.getElementById("saveColors").onclick = () => {
+      if (!isLocalStorageAvailable()) {
+          const t = translations[getCurrentLanguage()];
+          showToast(t.toastLocalStorageError, 'error');
+          return;
+      }
       localStorage.setItem("editColor", document.getElementById("editColor").value);
       localStorage.setItem("reviewColor", document.getElementById("reviewColor").value);
       applyColors();
@@ -978,7 +1133,9 @@ function applyTranslations() {
         editor: document.getElementById("editorPopup"),
         settings: document.getElementById("settingsPopup"),
         csvImportTypeModal: document.getElementById("csvImportTypeModal"),
+        importModeModal: document.getElementById("importModeModal"),
         csvDate: document.getElementById("csvDateModal"),
+        batchDate: document.getElementById("batchDateModal"),
         filterInfo: document.getElementById("filterInfoModal"),
         confirmLoad: document.getElementById("confirmLoadModal"),
         megaLogin: document.getElementById("megaLoginModal"),
@@ -1308,6 +1465,7 @@ function applyTranslations() {
                 .sort();
             records.forEach(name => loadSelect.add(new Option(name, name)));
         } else {
+            if(!isLocalStorageAvailable()) return;
             const records = Object.keys(localStorage).filter(k => k.startsWith("chartData_")).sort();
             records.forEach(k => {
                 const name = k.replace("chartData_", "");
@@ -1345,6 +1503,7 @@ function applyTranslations() {
               showToast(t.toastMegaError.replace('%s', err.message), 'error');
           }
       } else {
+          if (!isLocalStorageAvailable()) { showToast(t.toastLocalStorageError, 'error'); return; }
           const originalDataJSON = localStorage.getItem("chartData_" + selected);
           localStorage.setItem("chartData_" + selected, JSON.stringify(data));
           const undoCallback = () => {
@@ -1373,6 +1532,7 @@ function applyTranslations() {
                 showToast(t.toastMegaError.replace('%s', err.message), 'error');
             }
         } else {
+            if (!isLocalStorageAvailable()) { showToast(t.toastLocalStorageError, 'error'); return; }
             const raw = localStorage.getItem("chartData_" + selected);
             localStorage.removeItem("chartData_" + selected);
             localStorage.setItem("chartData_" + newName, raw);
@@ -1401,6 +1561,7 @@ function applyTranslations() {
             const buffer = await file.downloadBuffer();
             raw = new TextDecoder().decode(buffer);
         } else {
+            if (!isLocalStorageAvailable()) { showToast(t.toastLocalStorageError, 'error'); return; }
             raw = localStorage.getItem("chartData_" + selected);
         }
 
@@ -1446,6 +1607,7 @@ function applyTranslations() {
                 showToast(t.toastMegaError.replace('%s', err.message), 'error');
             }
         } else {
+            if (!isLocalStorageAvailable()) { showToast(t.toastLocalStorageError, 'error'); return; }
             const originalDataJSON = localStorage.getItem("chartData_" + selected);
             localStorage.removeItem("chartData_" + selected);
             renderSavedOptions();
@@ -1472,6 +1634,7 @@ function applyTranslations() {
                 showToast(t.toastMegaError.replace('%s', err.message), 'error');
             }
         } else {
+            if (!isLocalStorageAvailable()) { showToast(t.toastLocalStorageError, 'error'); return; }
             const backup = {};
             Object.keys(localStorage).forEach(k => {
                 if (k.startsWith("chartData_")) {
@@ -1542,6 +1705,33 @@ function applyTranslations() {
             showUndoToast(t.toastRecordsDeleted.replace('%d', checkedBoxes.length), undoCallback);
         }
     };
+
+    function handleBatchDateUpdate() {
+        const t = translations[getCurrentLanguage()];
+        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+        if (checkedBoxes.length === 0) {
+            showToast(t.toastNoRowsSelected, 'warning');
+            return;
+        }
+
+        const year = parseInt(document.getElementById('batchYear').value);
+        const month = parseInt(document.getElementById('batchMonth').value);
+
+        const indicesToUpdate = Array.from(checkedBoxes).map(box => parseInt(box.dataset.index));
+        
+        let updatedCount = 0;
+        indicesToUpdate.forEach(index => {
+            if (data[index] && data[index].hasOwnProperty('month')) {
+                data[index].year = year;
+                data[index].month = month;
+                updatedCount++;
+            }
+        });
+
+        refreshAll();
+        closeAllPopups();
+        showToast(t.toastBatchDateUpdated.replace('%d', updatedCount), 'success');
+    }
 
     function updateMegaUI() {
         const t = translations[getCurrentLanguage()];
@@ -1625,7 +1815,7 @@ function applyTranslations() {
         const t = translations[getCurrentLanguage()];
         
         const tourCleanup = () => {
-            localStorage.setItem('tourCompleted', 'true');
+            if(isLocalStorageAvailable()) localStorage.setItem('tourCompleted', 'true');
             closeAllPopups();
         };
 
@@ -1727,6 +1917,10 @@ function applyTranslations() {
 
 
     function initializeApp() {
+        if (!isLocalStorageAvailable()) {
+            displayStorageWarning();
+        }
+
         const langSelector = document.getElementById('languageSelector');
         const languageMap = { ar: 'العربية', 'zh-CN': '简体中文', 'zh-TW': '繁體中文', nl: 'Nederlands', en: 'English', fr: 'Français', de: 'Deutsch', id: 'Bahasa Indonesia', it: 'Italiano', ja: '日本語', ko: '한국어', pl: 'Polski', pt: 'Português', ro: 'Română', ru: 'Русский', es: 'Español', th: 'ไทย', tr: 'Türkçe', vi: 'Tiếng Việt', el: 'Ελληνικά', bg: 'Български', sr: 'Српски', hr: 'Hrvatski', uk: 'Українська', ka: 'ქართული', sl: 'Slovenščina', az: 'Azərbaycan türkcəsi' };
         for (const [code, name] of Object.entries(languageMap)) {
@@ -1737,6 +1931,18 @@ function applyTranslations() {
             saveLanguage(e.target.value);
             location.reload();
         };
+
+        if (isLocalStorageAvailable()) {
+            const savedViewType = localStorage.getItem('defaultViewType');
+            if (savedViewType) {
+                document.getElementById('viewType').value = savedViewType;
+            }
+            const savedChartType = localStorage.getItem('defaultChartType');
+            if (savedChartType) {
+                document.getElementById('chartTypeSelect').value = savedChartType;
+            }
+        }
+        
         document.getElementById('aggregatedReportSelector').onchange = applyFiltersAndRender;
         document.getElementById('printChartBtn').addEventListener('click', prepareAndPrintChart);
         
@@ -1775,8 +1981,27 @@ function applyTranslations() {
             });
         });
 
+        document.getElementById('chartSearchInput').oninput = function(e) {
+            chartSearchTerm = e.target.value.toLowerCase();
+            applyFiltersAndRender();
+        };
+
+        document.getElementById('batchEditDateBtn').onclick = () => {
+            const t = translations[getCurrentLanguage()];
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                showToast(t.toastNoRowsSelected, 'warning');
+                return;
+            }
+            openPopup('batchDate');
+        };
+
+        document.getElementById('confirmBatchDate').onclick = handleBatchDateUpdate;
+        document.getElementById('cancelBatchDate').onclick = () => closeAllPopups();
+
         populateDateSelectors('dataYear', 'dataMonth');
         populateDateSelectors('csvYear', 'csvMonth');
+        populateDateSelectors('batchYear', 'batchMonth');
         createChart(document.getElementById('chartTypeSelect').value || 'bar');
         applyColors();
         refreshAll();
@@ -1784,7 +2009,11 @@ function applyTranslations() {
         toggleFilterVisibility();
         applyTranslations();
         
-        if (!localStorage.getItem('tourCompleted')) {
+        let tourCompleted = false;
+        if (isLocalStorageAvailable()) {
+            tourCompleted = localStorage.getItem('tourCompleted');
+        }
+        if (!tourCompleted) {
             setTimeout(() => {
                 setupTour().start();
             }, 1000);
