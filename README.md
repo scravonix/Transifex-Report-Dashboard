@@ -14,7 +14,7 @@ I made this (with help from AI) at first for myself. But then I thought, why not
 
 ---
 
-![App Screenshot](https://i.imgur.com/QMH5pt3.png)
+![Web App Screenshot](https://i.imgur.com/Bbd5ATt.png)
 
 ## ✨ Key Features
 
