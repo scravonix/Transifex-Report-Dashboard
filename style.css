@@ -1,3 +1,34 @@
+/* MONTSERRAT FONT'UNU İÇE AKTAR */
+@font-face {
+  font-family: 'Montserrat';
+  src: url('fonts/Montserrat-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('fonts/Montserrat-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('fonts/Montserrat-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('fonts/Montserrat-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+/* MONTSERRAT FONT'UNU İÇE AKTAR - BİTİŞ */
+
 :root {
   --edit-color: #10b981;
   --review-color: #ea580c;
@@ -20,12 +51,18 @@
 }
 
 body {
-  font-family: "Segoe UI", Roboto, sans-serif;
+  font-family: 'Montserrat', sans-serif;
   margin: 0;
   background: #f9fafb;
   color: #1e293b;
   transition: background 0.3s, color 0.3s;
 }
+
+/* Evrensel font tanımı */
+* {
+  font-family: 'Montserrat', sans-serif;
+}
+
 .dark {
   background: #0f172a;
   color: #e2e8f0;

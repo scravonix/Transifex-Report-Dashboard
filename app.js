@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let megaFolder = null;
     const MEGA_FOLDER_NAME = 'Transifex report for MEGA';
 
+    // DÜZELTME BAŞLANGICI: popups ve overlay'i global olarak tanımlıyoruz
     const popups = {
         sidebar: document.getElementById("sidebar"),
         editor: document.getElementById("editorPopup"),
@@ -33,9 +34,10 @@ document.addEventListener('DOMContentLoaded', function() {
         filterInfo: document.getElementById("filterInfoModal"),
         confirmLoad: document.getElementById("confirmLoadModal"),
         megaLogin: document.getElementById("megaLoginModal"),
-        assignToReportModal: document.getElementById("assignToReportModal")
+        assignToReportModal: document.getElementById("assignToReportModal") // EKLEME
     };
     const overlay = document.getElementById("overlay");
+    // DÜZELTME SONU
 
     function isLocalStorageAvailable() {
         let storage;
@@ -1298,19 +1300,25 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     function openPopup(id) {
-        closeAllPopups();
-        const targetPopup = popups[id];
-        
-        if (!targetPopup) {
-            console.error(`HATA: '${id}' ID'sine sahip bir popup bulunamadı.`);
-            return;
-        }
+    console.log(`LOG: openPopup çağrıldı, id: ${id}`);
+    closeAllPopups();
+    const targetPopup = popups[id];
 
-        targetPopup.classList.add('show');
-        if (overlay) {
-            overlay.classList.add('show');
-        }
+    if (!targetPopup) {
+        console.error(`HATA: '${id}' ID'sine sahip bir popup bulunamadı.`);
+        return;
     }
+
+    if (id === 'sidebar') {
+        targetPopup.classList.add('open');
+    } else {
+        targetPopup.classList.add('show');
+    }
+
+    if (overlay) {
+        overlay.classList.add('show');
+    }
+}
 
     function closePopup(id) {
         if (popups[id]) {
@@ -1325,17 +1333,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function closeAllPopups() {
-        for (const key in popups) {
-            if (popups[key]) {
-                if (key === 'sidebar') {
-                    popups[key].classList.remove('open');
-                } else {
-                    popups[key].classList.remove('show');
-                }
+    for (const key in popups) {
+        if (popups[key]) {
+            if (key === 'sidebar') {
+                popups[key].classList.remove('open');
+            } else {
+                popups[key].classList.remove('show');
             }
         }
-        overlay.classList.remove('show');
     }
+    overlay.classList.remove('show');
+}
 
     document.getElementById("openSidebar").onclick = () => { renderSidebar(getFilteredData()); openPopup('sidebar'); };
     document.getElementById("openSettings").onclick = () => { openPopup('settings'); };
@@ -1857,53 +1865,66 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 	
 	function handleAssignToReport() {
-        const t = translations[getCurrentLanguage()];
-        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+    // [LOG] Fonksiyon başlangıcı
+    console.log("LOG: handleAssignToReport() fonksiyonu başladı.");
+
+    const t = translations[getCurrentLanguage()];
+    const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
     
-        if (checkedBoxes.length === 0) {
-            showToast(t.toastNoRowsSelected, 'warning');
-            return;
-        }
+    // [LOG] Seçilen kutu sayısı
+    console.log(`LOG: Seçili onay kutusu sayısı: ${checkedBoxes.length}`);
 
-        const reportSelector = document.getElementById('assignReportSelector');
-        const selectedReportName = reportSelector.value;
-    
-        if (!selectedReportName) {
-            showToast(t.toastSelectReport, 'warning');
-            return;
-        }
-
-        const newRecords = [];
-        const originalIndicesToRemove = [];
-
-        Array.from(checkedBoxes).forEach(box => {
-            const index = parseInt(box.dataset.index);
-            const record = data[index];
-            if (record && record.hasOwnProperty('month')) {
-                originalIndicesToRemove.push(index);
-
-                const newRecord = {
-                    Project: record.Project,
-                    Edit_total: record.Edit_total,
-                    Review_total: record.Review_total,
-                    reportName: selectedReportName
-                };
-                newRecords.push(newRecord);
-            }
-        });
-
-        originalIndicesToRemove.sort((a, b) => b - a);
-
-        originalIndicesToRemove.forEach(index => {
-            data.splice(index, 1);
-        });
-
-        data.push(...newRecords);
-
-        refreshAll();
-        closeAllPopups();
-        showToast(t.toastAssignedToReport.replace('%d', newRecords.length).replace('%s', selectedReportName), 'success');
+    if (checkedBoxes.length === 0) {
+        // [LOG] Hata durumunda toast mesajı
+        console.log("HATA LOG: Hiçbir satır seçilmedi. 'toastNoRowsSelected' mesajı gösteriliyor.");
+        showToast(t.toastNoRowsSelected, 'warning');
+        return;
     }
+
+    const reportSelector = document.getElementById('assignReportSelector');
+    const selectedReportName = reportSelector.value;
+    
+    // [LOG] Seçilen rapor adı
+    console.log(`LOG: Seçilen rapor adı: ${selectedReportName}`);
+
+    if (!selectedReportName) {
+        // [LOG] Hata durumu
+        console.log("HATA LOG: Rapor seçilmedi. 'toastSelectReport' mesajı gösteriliyor.");
+        showToast(t.toastSelectReport, 'warning');
+        return;
+    }
+
+    const newRecords = [];
+    const originalIndicesToRemove = [];
+
+    Array.from(checkedBoxes).forEach(box => {
+        const index = parseInt(box.dataset.index);
+        const record = data[index];
+        if (record && record.hasOwnProperty('month')) {
+            originalIndicesToRemove.push(index);
+
+            const newRecord = {
+                Project: record.Project,
+                Edit_total: record.Edit_total,
+                Review_total: record.Review_total,
+                reportName: selectedReportName
+            };
+            newRecords.push(newRecord);
+        }
+    });
+
+    originalIndicesToRemove.sort((a, b) => b - a);
+
+    originalIndicesToRemove.forEach(index => {
+        data.splice(index, 1);
+    });
+
+    data.push(...newRecords);
+
+    refreshAll();
+    closeAllPopups();
+    showToast(t.toastAssignedToReport.replace('%d', newRecords.length).replace('%s', selectedReportName), 'success');
+}
 
     document.getElementById('selectAllCheckbox').onchange = function(e) {
         document.querySelectorAll('.row-checkbox').forEach(box => {
@@ -2334,8 +2355,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 		
 		document.getElementById('assignToReportBtn').onclick = () => {
+    // [LOG] Düğmeye tıklandı
+    console.log("LOG: 'assignToReportBtn' düğmesine tıklandı.");
+
+    // Bu satırın çalışıp çalışmadığını ve pop-up'ın açılıp açılmadığını kontrol edin
     populateAssignToReportSelector();
     openPopup('assignToReportModal');
+
+    // [LOG] Pop-up açma
+    console.log("LOG: 'assignToReportModal' pop-up'ını açma denemesi yapıldı.");
 };
 
         document.getElementById('confirmAssignToReportBtn').onclick = () => {
@@ -2351,24 +2379,42 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
     function populateAssignToReportSelector() {
-    const selector = document.getElementById('assignReportSelector');
-    const aggregatedReports = [...new Set(data.filter(d => d.hasOwnProperty('reportName')).map(d => d.reportName))];
-    const t = translations[getCurrentLanguage()];
+    // [LOG] Fonksiyon başlangıcı
+    console.log("LOG: populateAssignToReportSelector() fonksiyonu başladı.");
 
+    const selector = document.getElementById('assignReportSelector');
+    
+    // [LOG] Veri filtresi
+    const aggregatedReports = [...new Set(data.filter(d => {
+        const hasReportName = d.hasOwnProperty('reportName');
+        console.log(`LOG: Proje '${d.Project}' için 'reportName' var mı? ${hasReportName}`);
+        return hasReportName;
+    }).map(d => d.reportName))];
+
+    // [LOG] Bulunan toplu raporlar
+    console.log("LOG: Bulunan toplu raporlar:", aggregatedReports);
+
+    const t = translations[getCurrentLanguage()];
     selector.innerHTML = '';
     
     selector.add(new Option(t.createNewRecordButton, 'create_new_report'));
     
+    // [LOG] Rapor sayısı kontrolü
     if (aggregatedReports.length > 0) {
+        console.log("LOG: Mevcut toplu raporlar bulundu. Seçenekler ekleniyor.");
         aggregatedReports.forEach(name => {
             selector.add(new Option(name, name));
         });
         selector.disabled = false;
         selector.value = aggregatedReports[0];
     } else {
+        console.log("LOG: Hiç toplu rapor bulunamadı. Otomatik olarak 'Yeni Kayıt Oluştur' seçeneği seçiliyor.");
         selector.disabled = false;
         selector.value = 'create_new_report';
     }
+
+    // [LOG] Fonksiyon sonu
+    console.log("LOG: populateAssignToReportSelector() fonksiyonu bitti.");
 }
         
         document.getElementById('aggregatedReportSelector').onchange = applyFiltersAndRender;
