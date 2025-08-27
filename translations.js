@@ -221,7 +221,13 @@ const translations = {
         "toastImportApplied": "تم تطبيق إجراءات الاستيراد بنجاح.",
         "toastNoConflictsFound": "لم يتم العثور على مشاريع متعارضة. تمت إضافة جميع الإدخالات الجديدة تلقائيًا.",
         "textProject": "المشروع",
-        "textActions": "الإجراءات"
+        "textActions": "الإجراءات",
+        "assignDateButton": "تخصيص تاريخ",
+        "assignToReportButton": "تخصيص لتقرير",
+        "assignToReportModalHeader": "تخصيص لتقرير",
+        "assignToReportModalText": "اختر التقرير الذي تريد تخصيص الإدخالات المحددة له.",
+        "toastSelectReport": "الرجاء تحديد تقرير!",
+        "toastAssignedToReport": "تم تخصيص %d إدخال بنجاح إلى التقرير '%s'."
     },
     "zh-CN": {
         "appTitle": "我的 Transifex 报告",
@@ -445,7 +451,13 @@ const translations = {
         "toastImportApplied": "导入操作已成功应用。",
         "toastNoConflictsFound": "未找到冲突项目。所有新条目已自动添加。",
         "textProject": "项目",
-        "textActions": "操作"
+        "textActions": "操作",
+        "assignDateButton": "分配日期",
+        "assignToReportButton": "分配给报告",
+        "assignToReportModalHeader": "分配给报告",
+        "assignToReportModalText": "选择要将所选条目分配到的报告。",
+        "toastSelectReport": "请选择一个报告！",
+        "toastAssignedToReport": "已成功将 %d 条目分配给报告 '%s'。"
     },
     "zh-TW": {
         "appTitle": "我的 Transifex 報告",
@@ -669,7 +681,13 @@ const translations = {
         "toastImportApplied": "匯入操作已成功套用。",
         "toastNoConflictsFound": "未找到衝突的專案。所有新條目已自動新增。",
         "textProject": "專案",
-        "textActions": "操作"
+        "textActions": "操作",
+        "assignDateButton": "指定日期",
+        "assignToReportButton": "指定給報告",
+        "assignToReportModalHeader": "指定給報告",
+        "assignToReportModalText": "選擇要將選定的項目指定到的報告。",
+        "toastSelectReport": "請選擇一個報告！",
+        "toastAssignedToReport": "已成功將 %d 個項目指定給 '%s' 報告。"
     },
     "nl": {
         "appTitle": "Mijn Transifex rapport",
@@ -893,7 +911,13 @@ const translations = {
         "toastImportApplied": "Importacties succesvol toegepast.",
         "toastNoConflictsFound": "Geen conflicterende projecten gevonden. alle nieuwe vermeldingen zijn automatisch toegevoegd.",
         "textProject": "Project",
-        "textActions": "Acties"
+        "textActions": "Acties",
+        "assignDateButton": "Datum toewijzen",
+        "assignToReportButton": "Toewijzen aan rapport",
+        "assignToReportModalHeader": "Toewijzen aan rapport",
+        "assignToReportModalText": "Selecteer het rapport waaraan u de geselecteerde items wilt toewijzen.",
+        "toastSelectReport": "Selecteer een rapport!",
+        "toastAssignedToReport": "%d items succesvol toegewezen aan rapport '%s'."
     },
     "en": {
         "appTitle": "My Transifex report",
@@ -1117,7 +1141,13 @@ const translations = {
         "toastImportApplied": "Import actions applied successfully.",
         "toastNoConflictsFound": "No conflicting projects found. all new entries have been added automatically.",
         "textProject": "Project",
-        "textActions": "Actions"
+        "textActions": "Actions",
+        "assignDateButton": "Assign date",
+        "assignToReportButton": "Assign to Report",
+        "assignToReportModalHeader": "Assign to Report",
+        "assignToReportModalText": "Select the report to which you want to assign the selected entries.",
+        "toastSelectReport": "Please select a report!",
+        "toastAssignedToReport": "%d records successfully assigned to '%s' report."
     },
     "fr": {
         "appTitle": "Mon rapport Transifex",
@@ -1341,7 +1371,13 @@ const translations = {
         "toastImportApplied": "Actions d'importation appliquées avec succès.",
         "toastNoConflictsFound": "Aucun projet en conflit trouvé. toutes les nouvelles entrées ont été ajoutées automatiquement.",
         "textProject": "Projet",
-        "textActions": "Actions"
+        "textActions": "Actions",
+        "assignDateButton": "Attribuer une date",
+        "assignToReportButton": "Assigner au rapport",
+        "assignToReportModalHeader": "Assigner au rapport",
+        "assignToReportModalText": "Sélectionnez le rapport auquel vous souhaitez assigner les entrées sélectionnées.",
+        "toastSelectReport": "Veuillez sélectionner un rapport !",
+        "toastAssignedToReport": "%d enregistrements assignés avec succès au rapport '%s'."
     },
     "de": {
         "appTitle": "Mein Transifex-Bericht",
@@ -1565,7 +1601,13 @@ const translations = {
         "toastImportApplied": "Importaktionen erfolgreich angewendet.",
         "toastNoConflictsFound": "Keine in konflikt stehenden projekte gefunden. alle neuen einträge wurden automatisch hinzugefügt.",
         "textProject": "Projekt",
-        "textActions": "Aktionen"
+        "textActions": "Aktionen",
+        "assignDateButton": "Datum zuweisen",
+        "assignToReportButton": "Bericht zuweisen",
+        "assignToReportModalHeader": "Bericht zuweisen",
+        "assignToReportModalText": "Wählen Sie den Bericht aus, dem Sie die ausgewählten Einträge zuweisen möchten.",
+        "toastSelectReport": "Bitte wählen Sie einen Bericht!",
+        "toastAssignedToReport": "%d Einträge wurden erfolgreich dem Bericht '%s' zugewiesen."
     },
     "id": {
         "appTitle": "Laporan Transifex saya",
@@ -1789,7 +1831,13 @@ const translations = {
         "toastImportApplied": "Tindakan impor berhasil diterapkan.",
         "toastNoConflictsFound": "Tidak ada proyek yang berkonflik ditemukan. semua entri baru telah ditambahkan secara otomatis.",
         "textProject": "Proyek",
-        "textActions": "Tindakan"
+        "textActions": "Tindakan",
+        "assignDateButton": "Tetapkan tanggal",
+        "assignToReportButton": "Tetapkan ke Laporan",
+        "assignToReportModalHeader": "Tetapkan ke Laporan",
+        "assignToReportModalText": "Pilih laporan yang ingin Anda tetapkan untuk entri yang dipilih.",
+        "toastSelectReport": "Silakan pilih laporan!",
+        "toastAssignedToReport": "%d catatan berhasil ditetapkan ke laporan '%s'."
     },
     "it": {
         "appTitle": "Il mio rapporto Transifex",
@@ -2013,7 +2061,13 @@ const translations = {
         "toastImportApplied": "Azioni di importazione applicate con successo.",
         "toastNoConflictsFound": "Nessun progetto in conflitto trovato. tutte le nuove voci sono state aggiunte automaticamente.",
         "textProject": "Progetto",
-        "textActions": "Azioni"
+        "textActions": "Azioni",
+        "assignDateButton": "Assegna data",
+        "assignToReportButton": "Assegna a rapporto",
+        "assignToReportModalHeader": "Assegna a rapporto",
+        "assignToReportModalText": "Seleziona il rapporto a cui desideri assegnare le voci selezionate.",
+        "toastSelectReport": "Per favore, seleziona un rapporto!",
+        "toastAssignedToReport": "%d record assegnati con successo al rapporto '%s'."
     },
     "ja": {
         "appTitle": "私のTransifexレポート",
@@ -2237,7 +2291,13 @@ const translations = {
         "toastImportApplied": "インポートアクションが正常に適用されました。",
         "toastNoConflictsFound": "競合するプロジェクトは見つかりませんでした。新しいエントリはすべて自動的に追加されました。",
         "textProject": "プロジェクト",
-        "textActions": "操作"
+        "textActions": "操作",
+        "assignDateButton": "日付を割り当てる",
+        "assignToReportButton": "レポートに割り当て",
+        "assignToReportModalHeader": "レポートに割り当て",
+        "assignToReportModalText": "選択した項目を割り当てるレポートを選択してください。",
+        "toastSelectReport": "レポートを選択してください！",
+        "toastAssignedToReport": "%d 件のレコードがレポート '%s' に正常に割り当てられました。"
     },
     "ko": {
         "appTitle": "내 Transifex 보고서",
@@ -2461,7 +2521,13 @@ const translations = {
         "toastImportApplied": "가져오기 작업이 성공적으로 적용되었습니다.",
         "toastNoConflictsFound": "충돌하는 프로젝트를 찾을 수 없습니다. 모든 새 항목이 자동으로 추가되었습니다.",
         "textProject": "프로젝트",
-        "textActions": "작업"
+        "textActions": "작업",
+        "assignDateButton": "날짜 할당",
+        "assignToReportButton": "보고서에 할당",
+        "assignToReportModalHeader": "보고서에 할당",
+        "assignToReportModalText": "선택한 항목을 할당할 보고서를 선택하십시오.",
+        "toastSelectReport": "보고서를 선택하세요!",
+        "toastAssignedToReport": "%d개 레코드가 '%s' 보고서에 성공적으로 할당되었습니다."
     },
     "pt": {
         "appTitle": "Meu relatório Transifex",
@@ -2685,7 +2751,13 @@ const translations = {
         "toastImportApplied": "Ações de importação aplicadas com sucesso.",
         "toastNoConflictsFound": "Nenhum projeto conflitante encontrado. todas as novas entradas foram adicionadas automaticamente.",
         "textProject": "Projeto",
-        "textActions": "Ações"
+        "textActions": "Ações",
+        "assignDateButton": "Atribuir data",
+        "assignToReportButton": "Atribuir a Relatório",
+        "assignToReportModalHeader": "Atribuir a Relatório",
+        "assignToReportModalText": "Selecione o relatório ao qual você deseja atribuir as entradas selecionadas.",
+        "toastSelectReport": "Por favor, selecione um relatório!",
+        "toastAssignedToReport": "%d registos atribuídos com sucesso ao relatório '%s'."
     },
     "tr": {
         "appTitle": "Transifex raporum",
@@ -2909,7 +2981,13 @@ const translations = {
         "toastImportApplied": "İçe aktarma eylemleri başarıyla uygulandı.",
         "toastNoConflictsFound": "Çakışan proje bulunamadı. tüm yeni veriler doğrudan eklendi.",
         "textProject": "Proje",
-        "textActions": "Eylem"
+        "textActions": "Eylem",
+        "assignDateButton": "Tarihe ata",
+        "assignToReportButton": "Rapora ata",
+        "assignToReportModalHeader": "Rapora Ata",
+        "assignToReportModalText": "Seçili kayıtları atamak istediğiniz raporu seçin.",
+        "toastSelectReport": "Lütfen bir rapor seçin!",
+        "toastAssignedToReport": "%d kayıt '%s' raporuna başarıyla atandı."
     },
     "vi": {
         "appTitle": "Báo cáo Transifex của tôi",
@@ -3133,7 +3211,13 @@ const translations = {
         "toastImportApplied": "Hành động nhập đã được áp dụng thành công.",
         "toastNoConflictsFound": "Không tìm thấy dự án xung đột. tất cả các mục nhập mới đã được thêm tự động.",
         "textProject": "Dự án",
-        "textActions": "Hành động"
+        "textActions": "Hành động",
+        "assignDateButton": "Gán ngày",
+        "assignToReportButton": "Gán cho Báo cáo",
+        "assignToReportModalHeader": "Gán cho Báo cáo",
+        "assignToReportModalText": "Chọn báo cáo mà bạn muốn gán các mục đã chọn.",
+        "toastSelectReport": "Vui lòng chọn một báo cáo!",
+        "toastAssignedToReport": "Đã gán thành công %d bản ghi cho báo cáo '%s'."
     },
     "pl": {
         "appTitle": "Mój raport Transifex",
@@ -3357,7 +3441,13 @@ const translations = {
         "toastImportApplied": "Akcje importu zostały pomyślnie zastosowane.",
         "toastNoConflictsFound": "Nie znaleziono konfliktujących projektów. wszystkie nowe wpisy zostały dodane automatycznie.",
         "textProject": "Projekt",
-        "textActions": "Akcje"
+        "textActions": "Akcje",
+        "assignDateButton": "Przypisz datę",
+        "assignToReportButton": "Przypisz do raportu",
+        "assignToReportModalHeader": "Przypisz do raportu",
+        "assignToReportModalText": "Wybierz raport, do którego chcesz przypisać wybrane wpisy.",
+        "toastSelectReport": "Proszę wybrać raport!",
+        "toastAssignedToReport": "Pomyślnie przypisano %d wpisów do raportu '%s'."
     },
     "ro": {
         "appTitle": "Raportul meu Transifex",
@@ -3581,7 +3671,13 @@ const translations = {
         "toastImportApplied": "Acțiunile de import au fost aplicate cu succes.",
         "toastNoConflictsFound": "Nu s-au găsit proiecte conflictuale. toate intrările noi au fost adăugate automat.",
         "textProject": "Proiect",
-        "textActions": "Acțiuni"
+        "textActions": "Acțiuni",
+        "assignDateButton": "Atribuie dată",
+        "assignToReportButton": "Atribuie la raport",
+        "assignToReportModalHeader": "Atribuie la raport",
+        "assignToReportModalText": "Selectați raportul la care doriți să atribuiți intrările selectate.",
+        "toastSelectReport": "Vă rugăm să selectați un raport!",
+        "toastAssignedToReport": "%d înregistrări atribuite cu succes la raportul '%s'."
     },
     "ru": {
         "appTitle": "Мой отчет Transifex",
@@ -3805,7 +3901,13 @@ const translations = {
         "toastImportApplied": "Действия импорта успешно применены.",
         "toastNoConflictsFound": "Конфликтующих проектов не найдено. все новые записи были добавлены автоматически.",
         "textProject": "Проект",
-        "textActions": "Действия"
+        "textActions": "Действия",
+        "assignDateButton": "Назначить дату",
+        "assignToReportButton": "Назначить в отчет",
+        "assignToReportModalHeader": "Назначить в отчет",
+        "assignToReportModalText": "Выберите отчет, которому вы хотите назначить выбранные записи.",
+        "toastSelectReport": "Пожалуйста, выберите отчет!",
+        "toastAssignedToReport": "%d записей успешно назначено в отчет '%s'."
     },
     "es": {
         "appTitle": "Mi informe de Transifex",
@@ -4029,7 +4131,13 @@ const translations = {
         "toastImportApplied": "Acciones de importación aplicadas con éxito.",
         "toastNoConflictsFound": "No se encontraron proyectos en conflicto. todas las entradas nuevas se han agregado automáticamente.",
         "textProject": "Proyecto",
-        "textActions": "Acciones"
+        "textActions": "Acciones",
+        "assignDateButton": "Asignar fecha",
+        "assignToReportButton": "Asignar a informe",
+        "assignToReportModalHeader": "Asignar a informe",
+        "assignToReportModalText": "Seleccione el informe al que desea asignar las entradas seleccionadas.",
+        "toastSelectReport": "¡Por favor, seleccione un informe!",
+        "toastAssignedToReport": "%d registros asignados exitosamente al informe '%s'."
     },
     "th": {
         "appTitle": "รายงาน Transifex ของฉัน",
@@ -4253,7 +4361,13 @@ const translations = {
         "toastImportApplied": "ใช้การดำเนินการนำเข้าสำเร็จแล้ว",
         "toastNoConflictsFound": "ไม่พบโครงการที่ขัดแย้งกัน รายการใหม่ทั้งหมดถูกเพิ่มโดยอัตโนมัติแล้ว",
         "textProject": "โครงการ",
-        "textActions": "การดำเนินการ"
+        "textActions": "การดำเนินการ",
+        "assignDateButton": "กำหนดวันที่",
+        "assignToReportButton": "มอบหมายให้รายงาน",
+        "assignToReportModalHeader": "มอบหมายให้รายงาน",
+        "assignToReportModalText": "เลือกรายงานที่คุณต้องการมอบหมายรายการที่เลือก",
+        "toastSelectReport": "โปรดเลือกรีพอร์ต!",
+        "toastAssignedToReport": "มอบหมาย %d รายการให้กับรายงาน '%s' เรียบร้อยแล้ว"
     },
     "el": {
         "appTitle": "Η αναφορά μου στο Transifex",
@@ -4477,7 +4591,13 @@ const translations = {
         "toastImportApplied": "Οι ενέργειες εισαγωγής εφαρμόστηκαν με επιτυχία.",
         "toastNoConflictsFound": "Δεν βρέθηκαν διενεξιακά έργα. Όλες οι νέες εγγραφές προστέθηκαν αυτόματα.",
         "textProject": "Έργο",
-        "textActions": "Ενέργειες"
+        "textActions": "Ενέργειες",
+        "assignDateButton": "Αντιστοίχιση ημερομηνίας",
+        "assignToReportButton": "Ανάθεση σε αναφορά",
+        "assignToReportModalHeader": "Ανάθεση σε αναφορά",
+        "assignToReportModalText": "Επιλέξτε την αναφορά στην οποία θέλετε να αντιστοιχίσετε τις επιλεγμένες καταχωρήσεις.",
+        "toastSelectReport": "Παρακαλώ επιλέξτε μια αναφορά!",
+        "toastAssignedToReport": "%d εγγραφές ανατέθηκαν επιτυχώς στην αναφορά '%s'."
     },
     "bg": {
         "appTitle": "Моят Transifex отчет",
@@ -4701,7 +4821,13 @@ const translations = {
         "toastImportApplied": "Действията по импортиране са приложени успешно.",
         "toastNoConflictsFound": "Няма намерени конфликтни проекти. всички нови записи са добавени автоматично.",
         "textProject": "Проект",
-        "textActions": "Действия"
+        "textActions": "Действия",
+        "assignDateButton": "Присвояване на дата",
+        "assignToReportButton": "Присвояване към отчет",
+        "assignToReportModalHeader": "Присвояване към отчет",
+        "assignToReportModalText": "Изберете отчета, към който искате да присвоите избраните записи.",
+        "toastSelectReport": "Моля, изберете отчет!",
+        "toastAssignedToReport": "%d записа успешно присвоени към отчет '%s'."
     },
     "sr": {
         "appTitle": "Moj Transifex izveštaj",
@@ -4925,7 +5051,13 @@ const translations = {
         "toastImportApplied": "Akcije uvoza su uspešno primenjene.",
         "toastNoConflictsFound": "Nema pronađenih konfliktnih projekata. svi novi unosi su automatski dodati.",
         "textProject": "Projekat",
-        "textActions": "Akcije"
+        "textActions": "Akcije",
+        "assignDateButton": "Dodeli datum",
+        "assignToReportButton": "Dodeli izveštaju",
+        "assignToReportModalHeader": "Dodeli izveštaju",
+        "assignToReportModalText": "Izaberite izveštaj kome želite da dodelite izabrane unose.",
+        "toastSelectReport": "Molimo izaberite izveštaj!",
+        "toastAssignedToReport": "%d zapisa uspešno dodeljeno izveštaju '%s'."
     },
     "hr": {
         "appTitle": "Moje Transifex izvješće",
@@ -5149,7 +5281,13 @@ const translations = {
         "toastImportApplied": "Radnje uvoza uspješno su primijenjene.",
         "toastNoConflictsFound": "Nisu pronađeni konfliktni projekti. svi novi unosi automatski su dodani.",
         "textProject": "Projekt",
-        "textActions": "Akcije"
+        "textActions": "Akcije",
+        "assignDateButton": "Dodijeli datum",
+        "assignToReportButton": "Dodijeli izvješću",
+        "assignToReportModalHeader": "Dodijeli izvješću",
+        "assignToReportModalText": "Odaberite izvješće kojem želite dodijeliti odabrane unose.",
+        "toastSelectReport": "Molimo odaberite izvješće!",
+        "toastAssignedToReport": "%d zapisa uspješno dodijeljeno izvješću '%s'."
     },
     "uk": {
         "appTitle": "Мій звіт Transifex",
@@ -5373,7 +5511,13 @@ const translations = {
         "toastImportApplied": "Дії імпорту успішно застосовано.",
         "toastNoConflictsFound": "Конфліктних проектів не знайдено. усі нові записи було додано автоматично.",
         "textProject": "Проєкт",
-        "textActions": "Дії"
+        "textActions": "Дії",
+        "assignDateButton": "Призначити дату",
+        "assignToReportButton": "Призначити до звіту",
+        "assignToReportModalHeader": "Призначити до звіту",
+        "assignToReportModalText": "Оберіть звіт, до якого ви бажаєте призначити обрані записи.",
+        "toastSelectReport": "Будь ласка, оберіть звіт!",
+        "toastAssignedToReport": "%d записів успішно призначено до звіту '%s'."
     },
     "ka": {
         "appTitle": "ჩემი Transifex-ის ანგარიში",
@@ -5597,7 +5741,13 @@ const translations = {
         "toastImportApplied": "იმპორტის მოქმედებები წარმატებით განხორციელდა.",
         "toastNoConflictsFound": "კონფლიქტური პროექტები ვერ მოიძებნა. ყველა ახალი ჩანაწერი ავტომატურად დაემატა.",
         "textProject": "პროექტი",
-        "textActions": "მოქმედებები"
+        "textActions": "მოქმედებები",
+        "assignDateButton": "თარიღის მინიჭება",
+        "assignToReportButton": "ანგარიშზე მინიჭება",
+        "assignToReportModalHeader": "ანგარიშზე მინიჭება",
+        "assignToReportModalText": "აირჩიეთ ანგარიში, რომელსაც გსურთ მიანიჭოთ არჩეული ჩანაწერები.",
+        "toastSelectReport": "გთხოვთ, აირჩიოთ ანგარიში!",
+        "toastAssignedToReport": "%d ჩანაწერი წარმატებით მიენიჭა ანგარიშს '%s'."
     },
     "sl": {
         "appTitle": "Moje poročilo Transifex",
@@ -5821,7 +5971,13 @@ const translations = {
         "toastImportApplied": "Dejanja uvoza so bila uspešno uporabljena.",
         "toastNoConflictsFound": "Ni najdenih konfliktnih projektov. vsi novi vnosi so bili samodejno dodani.",
         "textProject": "Projekt",
-        "textActions": "Dejanja"
+        "textActions": "Dejanja",
+        "assignDateButton": "Določi datum",
+        "assignToReportButton": "Določi poročilu",
+        "assignToReportModalHeader": "Določi poročilu",
+        "assignToReportModalText": "Izberite poročilo, kateremu želite dodeliti izbrane vnose.",
+        "toastSelectReport": "Prosimo, izberite poročilo!",
+        "toastAssignedToReport": "%d zapisov uspešno dodeljenih poročilu '%s'."
     },
     "az": {
         "appTitle": "Transifex hesabatım",
@@ -6045,6 +6201,12 @@ const translations = {
         "toastImportApplied": "İdxal fəaliyyətləri uğurla tətbiq edildi.",
         "toastNoConflictsFound": "Ziddiyyətli layihələr tapılmadı. bütün yeni qeydlər avtomatik olaraq əlavə edildi.",
         "textProject": "Layihə",
-        "textActions": "Əməliyyatlar"
+        "textActions": "Əməliyyatlar",
+        "assignDateButton": "Tarix təyin et",
+        "assignToReportButton": "Hesabata təyin et",
+        "assignToReportModalHeader": "Hesabata Təyin et",
+        "assignToReportModalText": "Seçilmiş qeydləri təyin etmək istədiyiniz hesabatı seçin.",
+        "toastSelectReport": "Zəhmət olmasa, hesabat seçin!",
+        "toastAssignedToReport": "%d qeyd uğurla '%s' hesabatına təyin edildi."
     }
 };

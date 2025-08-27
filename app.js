@@ -21,6 +21,22 @@ document.addEventListener('DOMContentLoaded', function() {
     let megaFolder = null;
     const MEGA_FOLDER_NAME = 'Transifex report for MEGA';
 
+    const popups = {
+        sidebar: document.getElementById("sidebar"),
+        editor: document.getElementById("editorPopup"),
+        settings: document.getElementById("settingsPopup"),
+        csvImportTypeModal: document.getElementById("csvImportTypeModal"),
+        importModeModal: document.getElementById("importModeModal"),
+        decideImportModal: document.getElementById("decideImportModal"),
+        csvDate: document.getElementById("csvDateModal"),
+        batchDate: document.getElementById("batchDateModal"),
+        filterInfo: document.getElementById("filterInfoModal"),
+        confirmLoad: document.getElementById("confirmLoadModal"),
+        megaLogin: document.getElementById("megaLoginModal"),
+        assignToReportModal: document.getElementById("assignToReportModal")
+    };
+    const overlay = document.getElementById("overlay");
+
     function isLocalStorageAvailable() {
         let storage;
         try {
@@ -1167,6 +1183,12 @@ document.addEventListener('DOMContentLoaded', function() {
       document.body.classList.toggle("dark");
       applyTranslations();
       const textColor = getTextColor();
+      const editColor = document.getElementById("editColor").value;
+      const reviewColor = document.getElementById("reviewColor").value;
+      document.querySelector(".total-box.edit").style.background = editColor + "33";
+      document.querySelector(".total-box.edit").style.color = editColor;
+      document.querySelector(".total-box.review").style.background = reviewColor + "33";
+      document.querySelector(".total-box.review").style.color = reviewColor;
       if (mainChart) {
         mainChart.options.scales.x.ticks.color = textColor;
         mainChart.options.scales.y.ticks.color = textColor;
@@ -1275,36 +1297,21 @@ document.addEventListener('DOMContentLoaded', function() {
       showToast(t.toastColorsSaved, "success");
     };
 
-    const popups = {
-        sidebar: document.getElementById("sidebar"),
-        editor: document.getElementById("editorPopup"),
-        settings: document.getElementById("settingsPopup"),
-        csvImportTypeModal: document.getElementById("csvImportTypeModal"),
-        importModeModal: document.getElementById("importModeModal"),
-        decideImportModal: document.getElementById("decideImportModal"),
-        csvDate: document.getElementById("csvDateModal"),
-        batchDate: document.getElementById("batchDateModal"),
-        filterInfo: document.getElementById("filterInfoModal"),
-        confirmLoad: document.getElementById("confirmLoadModal"),
-        megaLogin: document.getElementById("megaLoginModal"),
-    };
-    const overlay = document.getElementById("overlay");
-
     function openPopup(id) {
-        if(tour && tour.isActive()) tour.cancel();
         closeAllPopups();
-        if (popups[id]) {
-            if (id === 'sidebar') {
-                popups.sidebar.classList.add('open');
-            } else if (id.includes('Modal')) {
-                popups[id].classList.add('show');
-            } else {
-                 popups[id].classList.add('show');
-            }
+        const targetPopup = popups[id];
+        
+        if (!targetPopup) {
+            console.error(`HATA: '${id}' ID'sine sahip bir popup bulunamadı.`);
+            return;
+        }
+
+        targetPopup.classList.add('show');
+        if (overlay) {
             overlay.classList.add('show');
         }
     }
-    
+
     function closePopup(id) {
         if (popups[id]) {
             if (id === 'sidebar') {
@@ -1318,32 +1325,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function closeAllPopups() {
-    const popups = {
-        sidebar: document.getElementById("sidebar"),
-        editor: document.getElementById("editorPopup"),
-        settings: document.getElementById("settingsPopup"),
-        csvImportTypeModal: document.getElementById("csvImportTypeModal"),
-        importModeModal: document.getElementById("importModeModal"),
-        decideImportModal: document.getElementById("decideImportModal"),
-        csvDate: document.getElementById("csvDateModal"),
-        batchDate: document.getElementById("batchDateModal"),
-        filterInfo: document.getElementById("filterInfoModal"),
-        confirmLoad: document.getElementById("confirmLoadModal"),
-        megaLogin: document.getElementById("megaLoginModal"),
-    };
-    const overlay = document.getElementById("overlay");
-    
-    for (const key in popups) {
-        if (popups[key]) {
-            if (key === 'sidebar') {
-                popups[key].classList.remove('open');
-            } else {
-                popups[key].classList.remove('show');
+        for (const key in popups) {
+            if (popups[key]) {
+                if (key === 'sidebar') {
+                    popups[key].classList.remove('open');
+                } else {
+                    popups[key].classList.remove('show');
+                }
             }
         }
+        overlay.classList.remove('show');
     }
-    overlay.classList.remove('show');
-}
 
     document.getElementById("openSidebar").onclick = () => { renderSidebar(getFilteredData()); openPopup('sidebar'); };
     document.getElementById("openSettings").onclick = () => { openPopup('settings'); };
@@ -1821,16 +1813,96 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     function updateBatchActionUI() {
+        const t = translations[getCurrentLanguage()];
         const container = document.getElementById('batchActionContainer');
         const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const changeDateBtn = document.getElementById('batchEditDateBtn');
+        const assignToReportBtn = document.getElementById('assignToReportBtn');
         const checkboxes = document.querySelectorAll('.row-checkbox');
         const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+        
         if (checkedBoxes.length > 0) {
             container.style.display = 'flex';
+            
+            const hasDatedEntries = Array.from(checkedBoxes).some(box => {
+                const index = parseInt(box.dataset.index);
+                return data[index] && data[index].hasOwnProperty('month');
+            });
+            const hasUndatedEntries = Array.from(checkedBoxes).some(box => {
+                const index = parseInt(box.dataset.index);
+                return data[index] && data[index].hasOwnProperty('reportName');
+            });
+
+            if (hasDatedEntries && hasUndatedEntries) {
+                changeDateBtn.style.display = 'none';
+                assignToReportBtn.style.display = 'none';
+            } else if (!hasDatedEntries && hasUndatedEntries) {
+                changeDateBtn.style.display = 'inline-block';
+                assignToReportBtn.style.display = 'none';
+                changeDateBtn.textContent = t.assignDateButton;
+            } else if (hasDatedEntries && !hasUndatedEntries) {
+                changeDateBtn.style.display = 'inline-block';
+                assignToReportBtn.style.display = 'inline-block';
+                changeDateBtn.textContent = t.batchEditDateButton;
+            } else {
+                changeDateBtn.style.display = 'none';
+                assignToReportBtn.style.display = 'none';
+            }
         } else {
             container.style.display = 'none';
+            changeDateBtn.style.display = 'none';
+            assignToReportBtn.style.display = 'none';
         }
         selectAllCheckbox.checked = checkboxes.length > 0 && checkedBoxes.length === checkboxes.length;
+    }
+	
+	function handleAssignToReport() {
+        const t = translations[getCurrentLanguage()];
+        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+    
+        if (checkedBoxes.length === 0) {
+            showToast(t.toastNoRowsSelected, 'warning');
+            return;
+        }
+
+        const reportSelector = document.getElementById('assignReportSelector');
+        const selectedReportName = reportSelector.value;
+    
+        if (!selectedReportName) {
+            showToast(t.toastSelectReport, 'warning');
+            return;
+        }
+
+        const newRecords = [];
+        const originalIndicesToRemove = [];
+
+        Array.from(checkedBoxes).forEach(box => {
+            const index = parseInt(box.dataset.index);
+            const record = data[index];
+            if (record && record.hasOwnProperty('month')) {
+                originalIndicesToRemove.push(index);
+
+                const newRecord = {
+                    Project: record.Project,
+                    Edit_total: record.Edit_total,
+                    Review_total: record.Review_total,
+                    reportName: selectedReportName
+                };
+                newRecords.push(newRecord);
+            }
+        });
+
+        originalIndicesToRemove.sort((a, b) => b - a);
+
+        originalIndicesToRemove.forEach(index => {
+            data.splice(index, 1);
+        });
+
+        data.push(...newRecords);
+
+        refreshAll();
+        closeAllPopups();
+        showToast(t.toastAssignedToReport.replace('%d', newRecords.length).replace('%s', selectedReportName), 'success');
     }
 
     document.getElementById('selectAllCheckbox').onchange = function(e) {
@@ -1885,21 +1957,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const year = parseInt(document.getElementById('batchYear').value);
         const month = parseInt(document.getElementById('batchMonth').value);
-
-        const indicesToUpdate = Array.from(checkedBoxes).map(box => parseInt(box.dataset.index));
         
-        let updatedCount = 0;
-        indicesToUpdate.forEach(index => {
-            if (data[index] && data[index].hasOwnProperty('month')) {
-                data[index].year = year;
-                data[index].month = month;
-                updatedCount++;
+        const newRecords = [];
+        const originalIndicesToRemove = [];
+
+        Array.from(checkedBoxes).forEach(box => {
+            const index = parseInt(box.dataset.index);
+            const record = data[index];
+            if (record) {
+                if (record.hasOwnProperty('reportName')) {
+                    originalIndicesToRemove.push(index);
+                    
+                    const newRecord = { 
+                        Project: record.Project,
+                        Edit_total: record.Edit_total,
+                        Review_total: record.Review_total,
+                        year: year,
+                        month: month
+                    };
+                    
+                    newRecords.push(newRecord);
+                }
+                else if (record.hasOwnProperty('month')) {
+                    record.year = year;
+                    record.month = month;
+                }
             }
         });
+        
+        originalIndicesToRemove.sort((a, b) => b - a);
+
+        originalIndicesToRemove.forEach(index => {
+            data.splice(index, 1);
+        });
+
+        data.push(...newRecords);
 
         refreshAll();
         closeAllPopups();
-        showToast(t.toastBatchDateUpdated.replace('%d', updatedCount), 'success');
+        showToast(t.toastBatchDateUpdated.replace('%d', newRecords.length), 'success');
     }
 
     function updateMegaUI() {
@@ -1928,7 +2024,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-        async function handleMegaLogin(e) {
+    async function handleMegaLogin(e) {
         if(e) e.preventDefault();
         const t = translations[getCurrentLanguage()];
         const email = document.getElementById('megaEmail').value;
@@ -1970,7 +2066,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderSavedOptions(); 
     }
 
-        function onMegaButtonClick() {
+    function onMegaButtonClick() {
         if (megaStorage) {
             handleMegaLogout();
         } else {
@@ -2236,6 +2332,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('chartTypeSelect').value = savedChartType;
             }
         }
+		
+		document.getElementById('assignToReportBtn').onclick = () => {
+    populateAssignToReportSelector();
+    openPopup('assignToReportModal');
+};
+
+        document.getElementById('confirmAssignToReportBtn').onclick = () => {
+            handleAssignToReport();
+        };
+		
+		document.getElementById('closeAssignToReportBtn').onclick = () => {
+            closeAllPopups();
+        };
+
+        document.getElementById('cancelAssignToReportBtn').onclick = () => {
+            closeAllPopups();
+        };
+
+    function populateAssignToReportSelector() {
+    const selector = document.getElementById('assignReportSelector');
+    const aggregatedReports = [...new Set(data.filter(d => d.hasOwnProperty('reportName')).map(d => d.reportName))];
+    const t = translations[getCurrentLanguage()];
+
+    selector.innerHTML = '';
+    
+    selector.add(new Option(t.createNewRecordButton, 'create_new_report'));
+    
+    if (aggregatedReports.length > 0) {
+        aggregatedReports.forEach(name => {
+            selector.add(new Option(name, name));
+        });
+        selector.disabled = false;
+        selector.value = aggregatedReports[0];
+    } else {
+        selector.disabled = false;
+        selector.value = 'create_new_report';
+    }
+}
         
         document.getElementById('aggregatedReportSelector').onchange = applyFiltersAndRender;
         document.getElementById('printChartBtn').addEventListener('click', prepareAndPrintChart);

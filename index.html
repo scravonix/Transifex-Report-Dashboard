@@ -203,6 +203,7 @@
         <div id="batchActionContainer" class="batch-action-container" style="display: none;">
             <button id="deleteSelectedRowsBtn" class="batch-action-btn batch-btn-danger" data-translate-key="batchDeleteButton">Delete selected</button>
             <button id="batchEditDateBtn" class="batch-action-btn batch-btn-primary" data-translate-key="batchEditDateButton">Change Date</button>
+            <button id="assignToReportBtn" class="batch-action-btn batch-btn-primary" data-translate-key="assignToReportButton" style="display:none;">Assign to Report</button>
         </div>
 
         <div class="editor-list-header">
@@ -262,7 +263,7 @@
           </div>
           <div class="control-panel-section">
               <h3 data-translate-key="fileSectionCsv">CSV operations</h3>
-              <p data-translate-key="fileSectionCsvDesc">Import or export your data as project, edit, and review counts. This format is compatible with other spreadsheet applications.</p>
+              <p data-translate-key="fileSectionCsvDesc">You can get data with '%importCsvButton%' or export your data as project, edit, and review counts with '%exportCsvButton%'. This format is compatible with other spreadsheet applications.</p>
               <div class="button-grid">
                   <label class="load-btn import-label">
                       <span data-translate-key="importCsvButton">⬆️ Import CSV</span>
@@ -273,7 +274,7 @@
           </div>
           <div class="control-panel-section">
               <h3 data-translate-key="fileSectionJson">JSON backup operations</h3>
-              <p data-translate-key="fileSectionJsonDesc">Use the JSON format to back up the entire data structure or move it to another device. This operation affects the currently selected record.</p>
+              <p data-translate-key="fileSectionJsonDesc">You can import a full backup with '%importButton%' or export the currently selected record with '%exportButton%'. This operation affects the currently selected record.</p>
               <div class="button-grid">
                   <label class="load-btn import-label">
                       <span data-translate-key="importButton">⬆️ Import JSON</span>
@@ -375,6 +376,23 @@
     </div>
   </div>
     
+  <div id="assignToReportModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="popup-header">
+            <h3 data-translate-key="assignToReportModalHeader">Assign to Report</h3>
+            <button id="closeAssignToReportBtn" class="close-btn">✖</button>
+        </div>
+        <p data-translate-key="assignToReportModalText">Select the report to which you want to assign the selected entries.</p>
+        <div class="date-select-group">
+            <select id="assignReportSelector" required></select>
+        </div>
+        <div class="modal-actions">
+            <button id="confirmAssignToReportBtn" data-translate-key="confirmButton">Confirm</button>
+            <button id="cancelAssignToReportBtn" data-translate-key="cancelButton" class="cancel">Cancel</button>
+        </div>
+    </div>
+  </div>
+  
   <div id="megaLoginModal" class="modal-overlay">
     <div class="modal-content">
         <div class="popup-header">
