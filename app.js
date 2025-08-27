@@ -2492,8 +2492,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 setupTour().start();
             }, 1000);
         }
-	  document.getElementById('toggleTheme').disabled = true;
-    }
 
-    initializeApp();
+    window.addEventListener('resize', () => {
+        if (!isChartAnimating) {
+            if (mainChart) {
+                mainChart.resize();
+            }
+            if (editPieChart) {
+                editPieChart.resize();
+            }
+            if (reviewPieChart) {
+                reviewPieChart.resize();
+            }
+        }
+    });
+
+    document.getElementById('toggleTheme').disabled = true;
+}
+
+initializeApp();
 });
