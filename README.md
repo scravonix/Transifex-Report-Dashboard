@@ -56,7 +56,7 @@ Tailor the dashboard to fit your workflow and preferences.
 - **Vanilla JavaScript** (No frameworks, pure JS for maximum performance)
 - **[Chart.js](https://www.chartjs.org/):** For beautiful and interactive charts.
 - **[chartjs-plugin-zoom](https://www.chartjs.org/chartjs-plugin-zoom/):** For chart zooming and panning functionality.
-- **[megajs](https://mega.js.org/):** Unofficial JavaScript for MEGA.
+- **[MEGAJS](https://mega.js.org/):** Unofficial JavaScript SDK for MEGA.
 
 ## 🚀 Getting Started
 
@@ -73,14 +73,14 @@ Getting started is incredibly simple.
     ```
 
 3.  **Open the `index.html` file in your browser.**
-    - You can open the file directly from your file system.
+    - You can open the file directly from your device.
 
 ## 📖 How to Use
 
-1.  **Export from Transifex:** First, export your translation statistics as a `.csv` file from your Transifex organization's reporting page.
+1.  **Export from Transifex:** First, export your statistics as a `.csv` file from your Transifex organization's reporting page.
 2.  **Import or Add Data:**
     - Open the **Settings (`⚙️`)** > **Go to page (`✏️`)**.
-    - In the **File Operations** tab, use the **⬆️ Import CSV report** button to load your file.
+    - In the **↔️ File operations** tab, use the **⬆️ Import CSV report** button to load your file.
     - Alternatively, you can add or edit entries manually in the **✏️ Report editor** tab.
 3.  **Save Your Session:** Use the **📂 Report management** tab to save your current data for future use.
 4.  **Analyze:** Return to the main page and use the filters to visualize your progress.
