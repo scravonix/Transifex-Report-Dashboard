@@ -227,7 +227,8 @@ const translations = {
         "assignToReportModalHeader": "تخصيص لتقرير",
         "assignToReportModalText": "اختر التقرير الذي تريد تخصيص الإدخالات المحددة له.",
         "toastSelectReport": "الرجاء تحديد تقرير!",
-        "toastAssignedToReport": "تم تخصيص %d إدخال بنجاح إلى التقرير '%s'."
+        "toastAssignedToReport": "تم تخصيص %d إدخال بنجاح إلى التقرير '%s'.",
+        "dropZoneText": "أو اسحب وأفلت ملف CSV/JSON هنا"
     },
     "zh-CN": {
         "appTitle": "我的 Transifex 报告",
@@ -457,7 +458,8 @@ const translations = {
         "assignToReportModalHeader": "分配给报告",
         "assignToReportModalText": "选择要将所选条目分配到的报告。",
         "toastSelectReport": "请选择一个报告！",
-        "toastAssignedToReport": "已成功将 %d 条目分配给报告 '%s'。"
+        "toastAssignedToReport": "已成功将 %d 条目分配给报告 '%s'。",
+        "dropZoneText": "或将 CSV/JSON 文件拖放到此处"
     },
     "zh-TW": {
         "appTitle": "我的 Transifex 報告",
@@ -687,7 +689,8 @@ const translations = {
         "assignToReportModalHeader": "指定給報告",
         "assignToReportModalText": "選擇要將選定的項目指定到的報告。",
         "toastSelectReport": "請選擇一個報告！",
-        "toastAssignedToReport": "已成功將 %d 個項目指定給 '%s' 報告。"
+        "toastAssignedToReport": "已成功將 %d 個項目指定給 '%s' 報告。",
+        "dropZoneText": "或將 CSV/JSON 文件拖放到此處"
     },
     "nl": {
         "appTitle": "Mijn Transifex rapport",
@@ -917,7 +920,8 @@ const translations = {
         "assignToReportModalHeader": "Toewijzen aan rapport",
         "assignToReportModalText": "Selecteer het rapport waaraan u de geselecteerde items wilt toewijzen.",
         "toastSelectReport": "Selecteer een rapport!",
-        "toastAssignedToReport": "%d items succesvol toegewezen aan rapport '%s'."
+        "toastAssignedToReport": "%d items succesvol toegewezen aan rapport '%s'.",
+        "dropZoneText": "of sleep een CSV/JSON-bestand hierheen"
     },
     "en": {
         "appTitle": "My Transifex report",
@@ -1147,7 +1151,8 @@ const translations = {
         "assignToReportModalHeader": "Assign to Report",
         "assignToReportModalText": "Select the report to which you want to assign the selected entries.",
         "toastSelectReport": "Please select a report!",
-        "toastAssignedToReport": "%d records successfully assigned to '%s' report."
+        "toastAssignedToReport": "%d records successfully assigned to '%s' report.",
+        "dropZoneText": "or drag and drop CSV/JSON file here"
     },
     "fr": {
         "appTitle": "Mon rapport Transifex",
@@ -1377,7 +1382,8 @@ const translations = {
         "assignToReportModalHeader": "Assigner au rapport",
         "assignToReportModalText": "Sélectionnez le rapport auquel vous souhaitez assigner les entrées sélectionnées.",
         "toastSelectReport": "Veuillez sélectionner un rapport !",
-        "toastAssignedToReport": "%d enregistrements assignés avec succès au rapport '%s'."
+        "toastAssignedToReport": "%d enregistrements assignés avec succès au rapport '%s'.",
+        "dropZoneText": "ou glissez-déposez un fichier CSV/JSON ici"
     },
     "de": {
         "appTitle": "Mein Transifex-Bericht",
@@ -1607,7 +1613,8 @@ const translations = {
         "assignToReportModalHeader": "Bericht zuweisen",
         "assignToReportModalText": "Wählen Sie den Bericht aus, dem Sie die ausgewählten Einträge zuweisen möchten.",
         "toastSelectReport": "Bitte wählen Sie einen Bericht!",
-        "toastAssignedToReport": "%d Einträge wurden erfolgreich dem Bericht '%s' zugewiesen."
+        "toastAssignedToReport": "%d Einträge wurden erfolgreich dem Bericht '%s' zugewiesen.",
+        "dropZoneText": "oder ziehen Sie eine CSV/JSON-Datei hierher"
     },
     "id": {
         "appTitle": "Laporan Transifex saya",
@@ -1837,7 +1844,8 @@ const translations = {
         "assignToReportModalHeader": "Tetapkan ke Laporan",
         "assignToReportModalText": "Pilih laporan yang ingin Anda tetapkan untuk entri yang dipilih.",
         "toastSelectReport": "Silakan pilih laporan!",
-        "toastAssignedToReport": "%d catatan berhasil ditetapkan ke laporan '%s'."
+        "toastAssignedToReport": "%d catatan berhasil ditetapkan ke laporan '%s'.",
+        "dropZoneText": "atau seret dan lepas file CSV/JSON di sini"
     },
     "it": {
         "appTitle": "Il mio rapporto Transifex",
@@ -2067,7 +2075,8 @@ const translations = {
         "assignToReportModalHeader": "Assegna a rapporto",
         "assignToReportModalText": "Seleziona il rapporto a cui desideri assegnare le voci selezionate.",
         "toastSelectReport": "Per favore, seleziona un rapporto!",
-        "toastAssignedToReport": "%d record assegnati con successo al rapporto '%s'."
+        "toastAssignedToReport": "%d record assegnati con successo al rapporto '%s'.",
+        "dropZoneText": "o trascina e rilascia il file CSV/JSON qui"
     },
     "ja": {
         "appTitle": "私のTransifexレポート",
@@ -2297,7 +2306,8 @@ const translations = {
         "assignToReportModalHeader": "レポートに割り当て",
         "assignToReportModalText": "選択した項目を割り当てるレポートを選択してください。",
         "toastSelectReport": "レポートを選択してください！",
-        "toastAssignedToReport": "%d 件のレコードがレポート '%s' に正常に割り当てられました。"
+        "toastAssignedToReport": "%d 件のレコードがレポート '%s' に正常に割り当てられました。",
+        "dropZoneText": "またはCSV/JSONファイルをここにドラッグ＆ドロップ"
     },
     "ko": {
         "appTitle": "내 Transifex 보고서",
@@ -2527,7 +2537,8 @@ const translations = {
         "assignToReportModalHeader": "보고서에 할당",
         "assignToReportModalText": "선택한 항목을 할당할 보고서를 선택하십시오.",
         "toastSelectReport": "보고서를 선택하세요!",
-        "toastAssignedToReport": "%d개 레코드가 '%s' 보고서에 성공적으로 할당되었습니다."
+        "toastAssignedToReport": "%d개 레코드가 '%s' 보고서에 성공적으로 할당되었습니다.",
+        "dropZoneText": "또는 CSV/JSON 파일을 여기로 끌어다 놓으세요"
     },
     "pt": {
         "appTitle": "Meu relatório Transifex",
@@ -2757,7 +2768,8 @@ const translations = {
         "assignToReportModalHeader": "Atribuir a Relatório",
         "assignToReportModalText": "Selecione o relatório ao qual você deseja atribuir as entradas selecionadas.",
         "toastSelectReport": "Por favor, selecione um relatório!",
-        "toastAssignedToReport": "%d registos atribuídos com sucesso ao relatório '%s'."
+        "toastAssignedToReport": "%d registos atribuídos com sucesso ao relatório '%s'.",
+        "dropZoneText": "ou arraste e solte o arquivo CSV/JSON aqui"
     },
     "tr": {
         "appTitle": "Transifex raporum",
@@ -2987,7 +2999,8 @@ const translations = {
         "assignToReportModalHeader": "Rapora Ata",
         "assignToReportModalText": "Seçili kayıtları atamak istediğiniz raporu seçin.",
         "toastSelectReport": "Lütfen bir rapor seçin!",
-        "toastAssignedToReport": "%d kayıt '%s' raporuna başarıyla atandı."
+        "toastAssignedToReport": "%d kayıt '%s' raporuna başarıyla atandı.",
+        "dropZoneText": "veya CSV/JSON dosyasını sürükleyip buraya bırakın"
     },
     "vi": {
         "appTitle": "Báo cáo Transifex của tôi",
@@ -3217,7 +3230,8 @@ const translations = {
         "assignToReportModalHeader": "Gán cho Báo cáo",
         "assignToReportModalText": "Chọn báo cáo mà bạn muốn gán các mục đã chọn.",
         "toastSelectReport": "Vui lòng chọn một báo cáo!",
-        "toastAssignedToReport": "Đã gán thành công %d bản ghi cho báo cáo '%s'."
+        "toastAssignedToReport": "Đã gán thành công %d bản ghi cho báo cáo '%s'.",
+        "dropZoneText": "hoặc kéo và thả tệp CSV/JSON vào đây"
     },
     "pl": {
         "appTitle": "Mój raport Transifex",
@@ -3447,7 +3461,8 @@ const translations = {
         "assignToReportModalHeader": "Przypisz do raportu",
         "assignToReportModalText": "Wybierz raport, do którego chcesz przypisać wybrane wpisy.",
         "toastSelectReport": "Proszę wybrać raport!",
-        "toastAssignedToReport": "Pomyślnie przypisano %d wpisów do raportu '%s'."
+        "toastAssignedToReport": "Pomyślnie przypisano %d wpisów do raportu '%s'.",
+        "dropZoneText": "lub przeciągnij i upuść plik CSV/JSON tutaj"
     },
     "ro": {
         "appTitle": "Raportul meu Transifex",
@@ -3677,7 +3692,8 @@ const translations = {
         "assignToReportModalHeader": "Atribuie la raport",
         "assignToReportModalText": "Selectați raportul la care doriți să atribuiți intrările selectate.",
         "toastSelectReport": "Vă rugăm să selectați un raport!",
-        "toastAssignedToReport": "%d înregistrări atribuite cu succes la raportul '%s'."
+        "toastAssignedToReport": "%d înregistrări atribuite cu succes la raportul '%s'.",
+        "dropZoneText": "sau trageți și plasați un fișier CSV/JSON aici"
     },
     "ru": {
         "appTitle": "Мой отчет Transifex",
@@ -3907,7 +3923,8 @@ const translations = {
         "assignToReportModalHeader": "Назначить в отчет",
         "assignToReportModalText": "Выберите отчет, которому вы хотите назначить выбранные записи.",
         "toastSelectReport": "Пожалуйста, выберите отчет!",
-        "toastAssignedToReport": "%d записей успешно назначено в отчет '%s'."
+        "toastAssignedToReport": "%d записей успешно назначено в отчет '%s'.",
+        "dropZoneText": "или перетащите сюда файл CSV/JSON"
     },
     "es": {
         "appTitle": "Mi informe de Transifex",
@@ -4137,7 +4154,8 @@ const translations = {
         "assignToReportModalHeader": "Asignar a informe",
         "assignToReportModalText": "Seleccione el informe al que desea asignar las entradas seleccionadas.",
         "toastSelectReport": "¡Por favor, seleccione un informe!",
-        "toastAssignedToReport": "%d registros asignados exitosamente al informe '%s'."
+        "toastAssignedToReport": "%d registros asignados exitosamente al informe '%s'.",
+        "dropZoneText": "o arrastra y suelta el archivo CSV/JSON aquí"
     },
     "th": {
         "appTitle": "รายงาน Transifex ของฉัน",
@@ -4367,7 +4385,8 @@ const translations = {
         "assignToReportModalHeader": "มอบหมายให้รายงาน",
         "assignToReportModalText": "เลือกรายงานที่คุณต้องการมอบหมายรายการที่เลือก",
         "toastSelectReport": "โปรดเลือกรีพอร์ต!",
-        "toastAssignedToReport": "มอบหมาย %d รายการให้กับรายงาน '%s' เรียบร้อยแล้ว"
+        "toastAssignedToReport": "มอบหมาย %d รายการให้กับรายงาน '%s' เรียบร้อยแล้ว",
+        "dropZoneText": "หรือลากและวางไฟล์ CSV/JSON ที่นี่"
     },
     "el": {
         "appTitle": "Η αναφορά μου στο Transifex",
@@ -4597,7 +4616,8 @@ const translations = {
         "assignToReportModalHeader": "Ανάθεση σε αναφορά",
         "assignToReportModalText": "Επιλέξτε την αναφορά στην οποία θέλετε να αντιστοιχίσετε τις επιλεγμένες καταχωρήσεις.",
         "toastSelectReport": "Παρακαλώ επιλέξτε μια αναφορά!",
-        "toastAssignedToReport": "%d εγγραφές ανατέθηκαν επιτυχώς στην αναφορά '%s'."
+        "toastAssignedToReport": "%d εγγραφές ανατέθηκαν επιτυχώς στην αναφορά '%s'.",
+        "dropZoneText": "ή σύρετε και αποθέστε αρχείο CSV/JSON εδώ"
     },
     "bg": {
         "appTitle": "Моят Transifex отчет",
@@ -4827,7 +4847,8 @@ const translations = {
         "assignToReportModalHeader": "Присвояване към отчет",
         "assignToReportModalText": "Изберете отчета, към който искате да присвоите избраните записи.",
         "toastSelectReport": "Моля, изберете отчет!",
-        "toastAssignedToReport": "%d записа успешно присвоени към отчет '%s'."
+        "toastAssignedToReport": "%d записа успешно присвоени към отчет '%s'.",
+        "dropZoneText": "или плъзнете и пуснете CSV/JSON файл тук"
     },
     "sr": {
         "appTitle": "Moj Transifex izveštaj",
@@ -5057,7 +5078,8 @@ const translations = {
         "assignToReportModalHeader": "Dodeli izveštaju",
         "assignToReportModalText": "Izaberite izveštaj kome želite da dodelite izabrane unose.",
         "toastSelectReport": "Molimo izaberite izveštaj!",
-        "toastAssignedToReport": "%d zapisa uspešno dodeljeno izveštaju '%s'."
+        "toastAssignedToReport": "%d zapisa uspešno dodeljeno izveštaju '%s'.",
+        "dropZoneText": "ili prevucite i ispustite CSV/JSON datoteku ovde"
     },
     "hr": {
         "appTitle": "Moje Transifex izvješće",
@@ -5287,7 +5309,8 @@ const translations = {
         "assignToReportModalHeader": "Dodijeli izvješću",
         "assignToReportModalText": "Odaberite izvješće kojem želite dodijeliti odabrane unose.",
         "toastSelectReport": "Molimo odaberite izvješće!",
-        "toastAssignedToReport": "%d zapisa uspješno dodijeljeno izvješću '%s'."
+        "toastAssignedToReport": "%d zapisa uspješno dodijeljeno izvješću '%s'.",
+        "dropZoneText": "ili povucite i ispustite CSV/JSON datoteku ovdje"
     },
     "uk": {
         "appTitle": "Мій звіт Transifex",
@@ -5517,7 +5540,8 @@ const translations = {
         "assignToReportModalHeader": "Призначити до звіту",
         "assignToReportModalText": "Оберіть звіт, до якого ви бажаєте призначити обрані записи.",
         "toastSelectReport": "Будь ласка, оберіть звіт!",
-        "toastAssignedToReport": "%d записів успішно призначено до звіту '%s'."
+        "toastAssignedToReport": "%d записів успішно призначено до звіту '%s'.",
+        "dropZoneText": "або перетягніть та залиште файл CSV/JSON сюди"
     },
     "ka": {
         "appTitle": "ჩემი Transifex-ის ანგარიში",
@@ -5747,7 +5771,8 @@ const translations = {
         "assignToReportModalHeader": "ანგარიშზე მინიჭება",
         "assignToReportModalText": "აირჩიეთ ანგარიში, რომელსაც გსურთ მიანიჭოთ არჩეული ჩანაწერები.",
         "toastSelectReport": "გთხოვთ, აირჩიოთ ანგარიში!",
-        "toastAssignedToReport": "%d ჩანაწერი წარმატებით მიენიჭა ანგარიშს '%s'."
+        "toastAssignedToReport": "%d ჩანაწერი წარმატებით მიენიჭა ანგარიშს '%s'.",
+        "dropZoneText": "ან გადაათრიეთ და ჩააგდეთ CSV/JSON ფაილი აქ"
     },
     "sl": {
         "appTitle": "Moje poročilo Transifex",
@@ -5977,7 +6002,8 @@ const translations = {
         "assignToReportModalHeader": "Določi poročilu",
         "assignToReportModalText": "Izberite poročilo, kateremu želite dodeliti izbrane vnose.",
         "toastSelectReport": "Prosimo, izberite poročilo!",
-        "toastAssignedToReport": "%d zapisov uspešno dodeljenih poročilu '%s'."
+        "toastAssignedToReport": "%d zapisov uspešno dodeljenih poročilu '%s'.",
+        "dropZoneText": "ali povlecite in spustite CSV/JSON datoteko tukaj"
     },
     "az": {
         "appTitle": "Transifex hesabatım",
@@ -6207,6 +6233,7 @@ const translations = {
         "assignToReportModalHeader": "Hesabata Təyin et",
         "assignToReportModalText": "Seçilmiş qeydləri təyin etmək istədiyiniz hesabatı seçin.",
         "toastSelectReport": "Zəhmət olmasa, hesabat seçin!",
-        "toastAssignedToReport": "%d qeyd uğurla '%s' hesabatına təyin edildi."
+        "toastAssignedToReport": "%d qeyd uğurla '%s' hesabatına təyin edildi.",
+        "dropZoneText": "və ya CSV/JSON faylını bura sürüşdürüb buraxın"
     }
 };

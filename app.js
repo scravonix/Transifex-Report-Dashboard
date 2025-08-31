@@ -633,54 +633,66 @@ document.addEventListener('DOMContentLoaded', function() {
         renderEditorList();
     };
 
-    document.getElementById("exportCSVBtn").onclick = async function() {
-        const t = translations[getCurrentLanguage()];
-        
-        const escapeCsvField = (field) => {
-            const str = String(field || '');
-            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-                return `"${str.replace(/"/g, '""')}"`;
-            }
-            return str;
-        };
+function generateRandomString(length) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        result += characters.charAt(randomIndex);
+    }
+    return result;
+}
 
-        const header = "Project,Edit,Review,Month,Year,ReportName\n";
-        
-        const csvRows = data.map(d => {
-            const project = escapeCsvField(d.Project);
-            const edit = d.Edit_total || 0;
-            const review = d.Review_total || 0;
-
-            if (d.hasOwnProperty('month') && d.hasOwnProperty('year')) {
-                const month = d.month + 1;
-                const year = d.year;
-                return `${project},${edit},${review},${month},${year},`;
-            } else {
-                const reportName = escapeCsvField(d.reportName);
-                return `${project},${edit},${review},,,${reportName}`;
-            }
-        });
-
-        const csvContent = header + csvRows.join("\n");
-        const fileName = "transifex-report-full.csv";
-
-        if (megaStorage) {
-            try {
-                await megaFolder.upload(fileName, new TextEncoder().encode(csvContent)).complete;
-                showToast(t.toastMegaUploadSuccess.replace('%s', fileName), 'success');
-            } catch (err) {
-                showToast(t.toastMegaError.replace('%s', err.message), 'error');
-            }
-        } else {
-            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = fileName;
-            a.click();
-            URL.revokeObjectURL(url);
+document.getElementById("exportCSVBtn").onclick = async function() {
+    const t = translations[getCurrentLanguage()];
+    
+    const escapeCsvField = (field) => {
+        const str = String(field || '');
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+            return `"${str.replace(/"/g, '""')}"`;
         }
+        return str;
     };
+
+    const header = "Project,Edit,Review,Month,Year,ReportName\n";
+    
+    const csvRows = data.map(d => {
+        const project = escapeCsvField(d.Project);
+        const edit = d.Edit_total || 0;
+        const review = d.Review_total || 0;
+
+        if (d.hasOwnProperty('month') && d.hasOwnProperty('year')) {
+            const month = d.month + 1;
+            const year = d.year;
+            return `${project},${edit},${review},${month},${year},`;
+        } else {
+            const reportName = escapeCsvField(d.reportName);
+            return `${project},${edit},${review},,,${reportName}`;
+        }
+    });
+
+    const csvContent = header + csvRows.join("\n");
+    
+    const randomString = generateRandomString(5);
+    const fileName = `transifex-report-${randomString}.csv`;
+
+    if (megaStorage) {
+        try {
+            await megaFolder.upload(fileName, new TextEncoder().encode(csvContent)).complete;
+            showToast(t.toastMegaUploadSuccess.replace('%s', fileName), 'success');
+        } catch (err) {
+            showToast(t.toastMegaError.replace('%s', err.message), 'error');
+        }
+    } else {
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+};
 
     function processImportedData(importedData, options = {}, mode = 'merge') {
         const t = translations[getCurrentLanguage()];
@@ -2431,6 +2443,40 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             openPopup('batchDate');
         };
+		
+		const dropZone = document.getElementById('drop-zone');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+        dropZone.classList.add('dragover');
+    }, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+        dropZone.classList.remove('dragover');
+    }, false);
+});
+
+dropZone.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    
+    if (files.length > 0) {
+        handleFileImport(files[0]);
+    }
+}
 
         document.getElementById('confirmBatchDate').onclick = handleBatchDateUpdate;
         document.getElementById('cancelBatchDate').onclick = () => closeAllPopups();
