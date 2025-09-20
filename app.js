@@ -726,10 +726,43 @@ document.getElementById("exportCSVBtn").onclick = async function() {
         }
     }
     
+    function parseCsvLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+
+            if (char === '"') {
+                if (inQuotes) {
+                    if (line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = false;
+                    }
+                } else {
+                    inQuotes = true;
+                }
+            } else if (char === ',' && !inQuotes) {
+                result.push(current.trim());
+                current = '';
+            } else if (char === '\r' && !inQuotes) {
+                continue;
+            } else {
+                current += char;
+            }
+        }
+
+        result.push(current.trim());
+        return result;
+    }
+
     function analyzeCsvContent(csv) {
-        const rows = csv.split("\n");
-        const headerLine = (rows[0] || "").trim().toLowerCase();
-        const header = headerLine.split(",").map(h => h.replace(/"/g, ''));
+        const rows = csv.split(/\r?\n/);
+        const headerFields = parseCsvLine(rows[0] || '');
+        const header = headerFields.map(h => h.trim().replace(/"/g, '').toLowerCase());
 
         const hasProject = header.includes('project');
         const hasEdit = header.includes('edit');
@@ -755,16 +788,16 @@ document.getElementById("exportCSVBtn").onclick = async function() {
 
         for (let i = 1; i < rows.length; i++) {
             if (rows[i].trim() === '') continue;
-            const cols = rows[i].split(",");
-            const pName = cols[pIdx]?.trim().replace(/"/g, '');
-            const ed = parseInt(cols[eIdx], 10);
-            const rev = parseInt(cols[rIdx], 10);
-            
+            const cols = parseCsvLine(rows[i]);
+            const pName = (cols[pIdx] || '').trim().replace(/"/g, '');
+            const ed = parseInt((cols[eIdx] || '').trim(), 10);
+            const rev = parseInt((cols[rIdx] || '').trim(), 10);
+
             if (!pName || isNaN(ed) || isNaN(rev)) continue;
 
             if (hasMonth && hasYear) {
-                const m = parseInt(cols[mIdx], 10) - 1;
-                const y = parseInt(cols[yIdx], 10);
+                const m = parseInt((cols[mIdx] || '').trim(), 10) - 1;
+                const y = parseInt((cols[yIdx] || '').trim(), 10);
 
                 if (!isNaN(m) && !isNaN(y) && m >= 0 && m <= 11) {
                     hasDatedRows = true;
@@ -968,10 +1001,11 @@ document.getElementById("exportCSVBtn").onclick = async function() {
     }
 
     function parseSummaryCSV(csv) {
-        const rows = csv.split("\n").slice(1);
+        const rows = csv.split(/\r?\n/).slice(1);
         const result = [];
         rows.forEach(row => {
-            const cols = row.split(",").map(c => c.trim().replace(/"/g, ''));
+            if (row.trim() === '') return;
+            const cols = parseCsvLine(row).map(c => c.trim().replace(/"/g, ''));
             if (cols.length < 2) return;
             let projectName, editTotal, reviewTotal;
             if (cols.length >= 17 && !isNaN(parseInt(cols[15],10))) {
