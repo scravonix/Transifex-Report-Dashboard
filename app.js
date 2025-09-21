@@ -36,6 +36,13 @@ document.addEventListener('DOMContentLoaded', function() {
         assignToReportModal: document.getElementById("assignToReportModal")
     };
     const overlay = document.getElementById("overlay");
+    const entryTypeRadios = document.querySelectorAll('input[name="entryType"]');
+    const datedEntryControls = document.getElementById('datedEntryControls');
+    const aggregatedEntryControls = document.getElementById('aggregatedEntryControls');
+    const manualReportSelector = document.getElementById('manualReportSelector');
+    const dataMonthSelect = document.getElementById('dataMonth');
+    const dataYearSelect = document.getElementById('dataYear');
+    let manualReportPreviousValue = manualReportSelector ? manualReportSelector.value : '';
 
     function isLocalStorageAvailable() {
         let storage;
@@ -245,17 +252,101 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function refreshAll() {
-      populateFilterDateSelectors(); 
-      applyColors(); 
+      populateFilterDateSelectors();
+      applyColors();
+      populateManualReportSelector();
       applyFiltersAndRender();
       renderSidebar(getFilteredData());
       renderEditorList();
       saveData();
     }
 
+    function getAggregatedReportNames() {
+        return [...new Set(
+            data
+                .filter(d => d && d.hasOwnProperty('reportName') && d.reportName)
+                .map(d => d.reportName)
+        )].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    }
+
+    function promptForNewReportName(existingNamesMap, t) {
+        while (true) {
+            const inputName = prompt(t.promptReportName);
+            if (inputName === null) {
+                return null;
+            }
+
+            const trimmedName = inputName.trim();
+            if (!trimmedName) {
+                continue;
+            }
+
+            const lowerName = trimmedName.toLowerCase();
+            if (existingNamesMap.has(lowerName)) {
+                return existingNamesMap.get(lowerName);
+            }
+
+            existingNamesMap.set(lowerName, trimmedName);
+            return trimmedName;
+        }
+    }
+
+    function ensureReportOption(selector, reportName) {
+        if (!selector) return;
+        const exists = Array.from(selector.options).some(option => option.value === reportName);
+        if (!exists) {
+            selector.add(new Option(reportName, reportName));
+        }
+    }
+
+    function handleCreateNewReportSelection(selector, t) {
+        if (!selector) return null;
+        const existingNames = new Map();
+        getAggregatedReportNames().forEach(name => existingNames.set(name.toLowerCase(), name));
+        Array.from(selector.options)
+            .filter(option => option.value && option.value !== 'create_new_report')
+            .forEach(option => existingNames.set(option.value.toLowerCase(), option.value));
+
+        const newName = promptForNewReportName(existingNames, t);
+        if (!newName) {
+            return null;
+        }
+
+        ensureReportOption(selector, newName);
+        selector.value = newName;
+        return newName;
+    }
+
+    function populateManualReportSelector() {
+        if (!manualReportSelector) return;
+        const previousValue = manualReportSelector.value;
+        const aggregatedReports = getAggregatedReportNames();
+        const t = translations[getCurrentLanguage()];
+        const createLabel = t.manualReportSelectorCreateNew || '➕ Create new report';
+
+        manualReportSelector.innerHTML = '';
+        manualReportSelector.add(new Option(createLabel, 'create_new_report'));
+
+        aggregatedReports.forEach(name => {
+            manualReportSelector.add(new Option(name, name));
+        });
+
+        if (previousValue && aggregatedReports.includes(previousValue)) {
+            manualReportSelector.value = previousValue;
+        } else if (previousValue === 'create_new_report') {
+            manualReportSelector.value = 'create_new_report';
+        } else if (aggregatedReports.length > 0) {
+            manualReportSelector.value = aggregatedReports[0];
+        } else {
+            manualReportSelector.value = 'create_new_report';
+        }
+
+        manualReportPreviousValue = manualReportSelector.value;
+    }
+
     function getFilteredData() {
         const viewType = document.getElementById('viewType').value;
-        
+
         if (viewType === 'aggregated') {
             const selectedReport = document.getElementById('aggregatedReportSelector').value;
             if (!selectedReport) return [];
@@ -521,6 +612,50 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    function updateEntryTypeUI() {
+        const selectedType = document.querySelector('input[name="entryType"]:checked')?.value || 'dated';
+        if (selectedType === 'aggregated') {
+            if (datedEntryControls) datedEntryControls.style.display = 'none';
+            if (aggregatedEntryControls) aggregatedEntryControls.style.display = 'flex';
+            if (dataMonthSelect) dataMonthSelect.disabled = true;
+            if (dataYearSelect) dataYearSelect.disabled = true;
+        } else {
+            if (datedEntryControls) datedEntryControls.style.display = 'flex';
+            if (aggregatedEntryControls) aggregatedEntryControls.style.display = 'none';
+            if (dataMonthSelect) dataMonthSelect.disabled = false;
+            if (dataYearSelect) dataYearSelect.disabled = false;
+        }
+    }
+
+    entryTypeRadios.forEach(radio => {
+        radio.addEventListener('change', updateEntryTypeUI);
+    });
+
+    if (manualReportSelector) {
+        manualReportSelector.addEventListener('focus', () => {
+            manualReportPreviousValue = manualReportSelector.value;
+        });
+
+        manualReportSelector.addEventListener('change', () => {
+            if (manualReportSelector.value === 'create_new_report') {
+                const createdName = handleCreateNewReportSelection(manualReportSelector, translations[getCurrentLanguage()]);
+                if (!createdName) {
+                    if (manualReportPreviousValue && manualReportPreviousValue !== 'create_new_report') {
+                        manualReportSelector.value = manualReportPreviousValue;
+                    } else if (manualReportSelector.options.length > 1) {
+                        manualReportSelector.value = manualReportSelector.options[1].value;
+                    } else {
+                        manualReportSelector.value = 'create_new_report';
+                    }
+                }
+            }
+            manualReportPreviousValue = manualReportSelector.value;
+        });
+    }
+
+    populateManualReportSelector();
+    updateEntryTypeUI();
+
     document.getElementById("dataForm").onsubmit = (e) => {
       e.preventDefault();
       const name = document.getElementById("projectName").value.trim();
@@ -528,14 +663,43 @@ document.addEventListener('DOMContentLoaded', function() {
       const review = Number(document.getElementById("reviewValue").value);
       const year = Number(document.getElementById("dataYear").value);
       const month = Number(document.getElementById("dataMonth").value);
+      const entryType = document.querySelector('input[name="entryType"]:checked')?.value || 'dated';
       const t = translations[getCurrentLanguage()];
       if (!name || isNaN(edit) || isNaN(review) || edit < 0 || review < 0) {
         showToast(t.toastInvalidData, "error");
         return;
       }
-      addOrUpdateData({ Project: name, Edit_total: edit, Review_total: review, year, month }, { isManualAdd: true, name: name, month: month, year: year});
+
+      if (entryType === 'aggregated') {
+        if (!manualReportSelector) {
+          showToast(t.toastSelectReport, 'warning');
+          return;
+        }
+
+        let reportName = manualReportSelector.value;
+        if (!reportName) {
+          showToast(t.toastSelectReport, 'warning');
+          return;
+        }
+
+        if (reportName === 'create_new_report') {
+          const createdName = handleCreateNewReportSelection(manualReportSelector, t);
+          if (!createdName) {
+            showToast(t.toastSelectReport, 'warning');
+            return;
+          }
+          reportName = createdName;
+        }
+
+        addOrUpdateData({ Project: name, Edit_total: edit, Review_total: review, reportName }, { isManualAdd: true, name: name, reportName: reportName });
+      } else {
+        addOrUpdateData({ Project: name, Edit_total: edit, Review_total: review, year, month }, { isManualAdd: true, name: name, month: month, year: year});
+      }
+
       e.target.reset();
       populateDateSelectors('dataYear', 'dataMonth');
+      populateManualReportSelector();
+      updateEntryTypeUI();
       refreshAll();
     };
 
@@ -972,16 +1136,32 @@ document.getElementById("exportCSVBtn").onclick = async function() {
 
         if (existingIndex > -1) {
             if (options.isManualAdd) {
-                const monthName = t.months[month];
-                const confirmMessage = t.confirmUpdate.replace('%s', options.name).replace('%s', monthName).replace('%s', options.year);
-                if (confirm(confirmMessage)) {
-                    data[existingIndex].Edit_total = Edit_total;
-                    data[existingIndex].Review_total = Review_total;
-                    showToast(t.toastDataUpdated, "info");
-                } else {
-                    data[existingIndex].Edit_total += Edit_total;
-                    data[existingIndex].Review_total += Review_total;
-                    showToast(t.toastDataAdded, "success");
+                if (item.hasOwnProperty('month')) {
+                    const monthName = t.months[month];
+                    const confirmMessage = t.confirmUpdate.replace('%s', options.name).replace('%s', monthName).replace('%s', options.year);
+                    if (confirm(confirmMessage)) {
+                        data[existingIndex].Edit_total = Edit_total;
+                        data[existingIndex].Review_total = Review_total;
+                        showToast(t.toastDataUpdated, "info");
+                    } else {
+                        data[existingIndex].Edit_total += Edit_total;
+                        data[existingIndex].Review_total += Review_total;
+                        showToast(t.toastDataAdded, "success");
+                    }
+                } else if (item.hasOwnProperty('reportName')) {
+                    const template = t.confirmUpdateAggregated || "A record for project '%s' already exists in the '%s' report.\n\nPress 'OK' to update the existing data (overwrite).\nPress 'Cancel' to add the new data to the existing data.";
+                    const confirmMessage = template
+                        .replace('%s', options.name)
+                        .replace('%s', options.reportName || reportName || '');
+                    if (confirm(confirmMessage)) {
+                        data[existingIndex].Edit_total = Edit_total;
+                        data[existingIndex].Review_total = Review_total;
+                        showToast(t.toastDataUpdated, "info");
+                    } else {
+                        data[existingIndex].Edit_total += Edit_total;
+                        data[existingIndex].Review_total += Review_total;
+                        showToast(t.toastDataAdded, "success");
+                    }
                 }
             } else {
                 if (mode === 'overwrite') {
@@ -1152,11 +1332,21 @@ document.getElementById("exportCSVBtn").onclick = async function() {
 
     function populateAggregatedReportSelector() {
         const selector = document.getElementById('aggregatedReportSelector');
-        const aggregatedReports = [...new Set(data.filter(d => d.hasOwnProperty('reportName')).map(d => d.reportName))];
+        if (!selector) return;
+        const previousValue = selector.value;
+        const aggregatedReports = getAggregatedReportNames();
         selector.innerHTML = '';
         aggregatedReports.forEach(name => {
             selector.add(new Option(name, name));
         });
+
+        if (previousValue && aggregatedReports.includes(previousValue)) {
+            selector.value = previousValue;
+        } else if (aggregatedReports.length > 0) {
+            selector.value = aggregatedReports[0];
+        } else {
+            selector.value = '';
+        }
     }
 
     function toggleFilterVisibility() {
@@ -1924,50 +2114,11 @@ document.getElementById("exportCSVBtn").onclick = async function() {
     }
 
     if (selectedReportName === 'create_new_report') {
-        const existingReportNames = new Set(
-            data
-                .filter(d => d && d.hasOwnProperty('reportName'))
-                .map(d => d.reportName.toLowerCase())
-        );
-        Array.from(reportSelector.options)
-            .filter(option => option.value && option.value !== 'create_new_report')
-            .forEach(option => existingReportNames.add(option.value.toLowerCase()));
-
-        const existingOptionValues = new Set(
-            Array.from(reportSelector.options)
-                .filter(option => option.value && option.value !== 'create_new_report')
-                .map(option => option.value)
-        );
-
-        while (true) {
-            const inputName = prompt(t.promptReportName);
-            if (inputName === null) {
-                return;
-            }
-
-            const trimmedName = inputName.trim();
-            if (!trimmedName) {
-                continue;
-            }
-
-            let uniqueName = trimmedName;
-            let suffix = 2;
-            while (existingReportNames.has(uniqueName.toLowerCase())) {
-                uniqueName = `${trimmedName} (${suffix})`;
-                suffix += 1;
-            }
-
-            existingReportNames.add(uniqueName.toLowerCase());
-            selectedReportName = uniqueName;
-
-            if (!existingOptionValues.has(uniqueName)) {
-                reportSelector.add(new Option(uniqueName, uniqueName));
-                existingOptionValues.add(uniqueName);
-            }
-
-            reportSelector.value = selectedReportName;
-            break;
+        const createdName = handleCreateNewReportSelection(reportSelector, t);
+        if (!createdName) {
+            return;
         }
+        selectedReportName = createdName;
     }
 
     const newRecords = [];
@@ -2448,29 +2599,33 @@ document.getElementById("exportCSVBtn").onclick = async function() {
         };
 
     function populateAssignToReportSelector() {
-    const selector = document.getElementById('assignReportSelector');
-    
-    const aggregatedReports = [...new Set(data.filter(d => {
-        const hasReportName = d.hasOwnProperty('reportName');
-        return hasReportName;
-    }).map(d => d.reportName))];
+        const selector = document.getElementById('assignReportSelector');
+        if (!selector) return;
 
-    const t = translations[getCurrentLanguage()];
-    selector.innerHTML = '';
-    
-    selector.add(new Option(t.createNewRecordButton, 'create_new_report'));
-    
-    if (aggregatedReports.length > 0) {
+        const t = translations[getCurrentLanguage()];
+        const previousValue = selector.value;
+        const aggregatedReports = getAggregatedReportNames();
+        const createLabel = t.manualReportSelectorCreateNew || t.createNewRecordButton || '➕ Create new report';
+
+        selector.innerHTML = '';
+        selector.add(new Option(createLabel, 'create_new_report'));
+
         aggregatedReports.forEach(name => {
             selector.add(new Option(name, name));
         });
+
         selector.disabled = false;
-        selector.value = aggregatedReports[0];
-    } else {
-        selector.disabled = false;
-        selector.value = 'create_new_report';
+
+        if (previousValue && aggregatedReports.includes(previousValue)) {
+            selector.value = previousValue;
+        } else if (previousValue === 'create_new_report') {
+            selector.value = 'create_new_report';
+        } else if (aggregatedReports.length > 0) {
+            selector.value = aggregatedReports[0];
+        } else {
+            selector.value = 'create_new_report';
+        }
     }
-}
         
         document.getElementById('aggregatedReportSelector').onchange = applyFiltersAndRender;
         document.getElementById('printChartBtn').addEventListener('click', prepareAndPrintChart);

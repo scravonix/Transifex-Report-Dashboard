@@ -332,6 +332,55 @@ body {
   color: #e2e8f0;
 }
 
+.entry-type-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.entry-type-group .entry-type-label {
+  font-weight: 600;
+}
+
+.entry-type-options {
+  display: flex;
+  gap: 16px;
+}
+
+.entry-type-options label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+#dataForm .report-select-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#dataForm .report-select-group label {
+  font-weight: 600;
+}
+
+#dataForm .report-select-group select {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+.dark #dataForm .report-select-group select {
+  background: #1e293b;
+  border: 1px solid #475569;
+  color: #e2e8f0;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
