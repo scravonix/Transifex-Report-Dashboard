@@ -1916,11 +1916,58 @@ document.getElementById("exportCSVBtn").onclick = async function() {
     }
 
     const reportSelector = document.getElementById('assignReportSelector');
-    const selectedReportName = reportSelector.value;
-    
+    let selectedReportName = reportSelector.value;
+
     if (!selectedReportName) {
         showToast(t.toastSelectReport, 'warning');
         return;
+    }
+
+    if (selectedReportName === 'create_new_report') {
+        const existingReportNames = new Set(
+            data
+                .filter(d => d && d.hasOwnProperty('reportName'))
+                .map(d => d.reportName.toLowerCase())
+        );
+        Array.from(reportSelector.options)
+            .filter(option => option.value && option.value !== 'create_new_report')
+            .forEach(option => existingReportNames.add(option.value.toLowerCase()));
+
+        const existingOptionValues = new Set(
+            Array.from(reportSelector.options)
+                .filter(option => option.value && option.value !== 'create_new_report')
+                .map(option => option.value)
+        );
+
+        while (true) {
+            const inputName = prompt(t.promptReportName);
+            if (inputName === null) {
+                return;
+            }
+
+            const trimmedName = inputName.trim();
+            if (!trimmedName) {
+                continue;
+            }
+
+            let uniqueName = trimmedName;
+            let suffix = 2;
+            while (existingReportNames.has(uniqueName.toLowerCase())) {
+                uniqueName = `${trimmedName} (${suffix})`;
+                suffix += 1;
+            }
+
+            existingReportNames.add(uniqueName.toLowerCase());
+            selectedReportName = uniqueName;
+
+            if (!existingOptionValues.has(uniqueName)) {
+                reportSelector.add(new Option(uniqueName, uniqueName));
+                existingOptionValues.add(uniqueName);
+            }
+
+            reportSelector.value = selectedReportName;
+            break;
+        }
     }
 
     const newRecords = [];
