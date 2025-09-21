@@ -183,9 +183,26 @@
           <input type="text" id="projectName" data-translate-key-placeholder="projectNamePlaceholder" required>
           <input type="number" id="editValue" data-translate-key-placeholder="editValuePlaceholder" required min="0">
           <input type="number" id="reviewValue" data-translate-key-placeholder="reviewValuePlaceholder" required min="0">
-          <div class="date-select-group">
+          <div class="entry-type-group">
+            <span class="entry-type-label" data-translate-key="entryTypeLabel">Entry type</span>
+            <div class="entry-type-options">
+              <label>
+                <input type="radio" name="entryType" value="dated" checked>
+                <span data-translate-key="entryTypeDated">Dated entry</span>
+              </label>
+              <label>
+                <input type="radio" name="entryType" value="aggregated">
+                <span data-translate-key="entryTypeAggregated">Aggregated report</span>
+              </label>
+            </div>
+          </div>
+          <div class="date-select-group" id="datedEntryControls">
             <select id="dataMonth" required></select>
             <select id="dataYear" required></select>
+          </div>
+          <div class="report-select-group" id="aggregatedEntryControls" style="display: none;">
+            <label for="manualReportSelector" data-translate-key="reportLabel">Report:</label>
+            <select id="manualReportSelector"></select>
           </div>
           <button type="submit" data-translate-key="addUpdateButton">➕ Add/update</button>
         </form>
